@@ -1,25 +1,14 @@
-//
-//  NewHabitViewController.swift
-//  Tracker
-//
-//  Created by Alexander Agafonov on 22.06.2025.
-//
-
 import UIKit
 
 final class NewHabitViewController: UIViewController {
 
-    
-    private var selectedDays: Set<WeekDay> = []
-    
-    
     // MARK: - UI Elements
 
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Новая привычка"
-        label.font = .systemFont(ofSize: 16, weight: .medium)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textAlignment = .center
         return label
     }()
@@ -28,29 +17,107 @@ final class NewHabitViewController: UIViewController {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "Введите название трекера"
-        textField.backgroundColor = UIColor(hex: "#F7F6F9")
-        textField.layer.cornerRadius = 10
-        textField.font = .systemFont(ofSize: 17)
+        textField.backgroundColor = UIColor(named: "Background")
+        textField.tintColor = UIColor(named: "YPGray")
+        textField.layer.cornerRadius = 16
+        textField.font = UIFont.systemFont(ofSize: 17)
         textField.clearButtonMode = .whileEditing
         textField.setLeftPaddingPoints(16)
         return textField
     }()
 
+    private let optionsBackgroundView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(named: "Background")
+        view.layer.cornerRadius = 16
+        return view
+    }()
+
+    private let categoryLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Категория"
+        label.font = UIFont.systemFont(ofSize: 17)
+        return label
+    }()
+    
+    private let categoryValueLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = UIColor(named: "YPGray")
+        label.font = UIFont.systemFont(ofSize: 17)
+        return label
+    }()
+
+    private let categoryStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.alignment = .leading
+        stack.spacing = 2
+        return stack
+    }()
+
+    private let categoryArrow: UIImageView = {
+        let imageView = UIImageView(image: UIImage(systemName: "chevron.right"))
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.tintColor = UIColor(named: "YPGray")
+        return imageView
+    }()
+
     private let categoryButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Категория", for: .normal)
-        button.setTitleColor(.label, for: .normal)
-        button.contentHorizontalAlignment = .left
+        button.backgroundColor = .clear
         return button
+    }()
+
+    private let separator: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(named: "YPGray")
+        return view
+    }()
+    
+    
+    private let scheduleStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.alignment = .leading
+        stack.spacing = 2
+        return stack
+    }()
+
+    private let scheduleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Расписание"
+        label.textColor = UIColor(named: "YPBlack")
+        label.font = UIFont.systemFont(ofSize: 17)
+        return label
+    }()
+
+    private let scheduleValueLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = UIColor(named: "YPGray")
+        label.font = UIFont.systemFont(ofSize: 17)
+        return label
+    }()
+
+    private let scheduleArrow: UIImageView = {
+        let imageView = UIImageView(image: UIImage(systemName: "chevron.right"))
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.tintColor = .systemGray2
+        return imageView
     }()
 
     private let scheduleButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Расписание", for: .normal)
-        button.setTitleColor(.label, for: .normal)
-        button.contentHorizontalAlignment = .left
+        button.backgroundColor = .clear
         return button
     }()
 
@@ -60,7 +127,7 @@ final class NewHabitViewController: UIViewController {
         button.setTitle("Отменить", for: .normal)
         button.setTitleColor(.red, for: .normal)
         button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor.red.cgColor
+        button.layer.borderColor = UIColor(named: "YPRed")?.cgColor
         button.layer.cornerRadius = 16
         return button
     }()
@@ -72,26 +139,49 @@ final class NewHabitViewController: UIViewController {
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = UIColor(named: "YPGray")
         button.layer.cornerRadius = 16
-        button.isEnabled = false // по умолчанию
+        button.isEnabled = false
         return button
     }()
+
+    // MARK: - Properties
+
+    private var selectedDays: Set<WeekDay> = []
 
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        setupLayout()
+        setupViews()
+        setupConstraints()
         setupActions()
     }
 
-    // MARK: - Layout
+    // MARK: - Setup
 
-    private func setupLayout() {
-        [titleLabel, nameTextField, categoryButton, scheduleButton, cancelButton, createButton].forEach {
-            view.addSubview($0)
-        }
+    private func setupViews() {
+        view.addSubview(titleLabel)
+        view.addSubview(nameTextField)
+        view.addSubview(optionsBackgroundView)
+        view.addSubview(cancelButton)
+        view.addSubview(createButton)
 
+        
+        optionsBackgroundView.addSubview(categoryArrow)
+        optionsBackgroundView.addSubview(categoryButton)
+        categoryStackView.addArrangedSubview(categoryLabel)
+        categoryStackView.addArrangedSubview(categoryValueLabel)
+        optionsBackgroundView.addSubview(categoryStackView)
+        optionsBackgroundView.addSubview(separator)
+
+        scheduleStackView.addArrangedSubview(scheduleLabel)
+        scheduleStackView.addArrangedSubview(scheduleValueLabel)
+        optionsBackgroundView.addSubview(scheduleStackView)
+        optionsBackgroundView.addSubview(scheduleArrow)
+        optionsBackgroundView.addSubview(scheduleButton)
+    }
+
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 27),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -101,15 +191,40 @@ final class NewHabitViewController: UIViewController {
             nameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             nameTextField.heightAnchor.constraint(equalToConstant: 75),
 
-            categoryButton.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 24),
-            categoryButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            categoryButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            optionsBackgroundView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 24),
+            optionsBackgroundView.leadingAnchor.constraint(equalTo: nameTextField.leadingAnchor),
+            optionsBackgroundView.trailingAnchor.constraint(equalTo: nameTextField.trailingAnchor),
+            optionsBackgroundView.heightAnchor.constraint(equalToConstant: 150),
+
+          
+            categoryStackView.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor, constant: 16),
+            categoryStackView.centerYAnchor.constraint(equalTo: categoryButton.centerYAnchor),
+
+            categoryArrow.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor, constant: -16),
+            categoryArrow.centerYAnchor.constraint(equalTo: categoryLabel.centerYAnchor),
+
+            categoryButton.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor),
+            categoryButton.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor),
+            categoryButton.topAnchor.constraint(equalTo: optionsBackgroundView.topAnchor),
             categoryButton.heightAnchor.constraint(equalToConstant: 75),
 
-            scheduleButton.topAnchor.constraint(equalTo: categoryButton.bottomAnchor),
-            scheduleButton.leadingAnchor.constraint(equalTo: categoryButton.leadingAnchor),
-            scheduleButton.trailingAnchor.constraint(equalTo: categoryButton.trailingAnchor),
-            scheduleButton.heightAnchor.constraint(equalTo: categoryButton.heightAnchor),
+            separator.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor, constant: 16),
+            separator.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor, constant: -16),
+            separator.topAnchor.constraint(equalTo: categoryButton.bottomAnchor),
+            separator.heightAnchor.constraint(equalToConstant: 1),
+
+            
+
+            scheduleStackView.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor, constant: 16),
+            scheduleStackView.centerYAnchor.constraint(equalTo: scheduleButton.centerYAnchor),
+
+            scheduleArrow.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor, constant: -16),
+            scheduleArrow.centerYAnchor.constraint(equalTo: scheduleLabel.centerYAnchor),
+
+            scheduleButton.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor),
+            scheduleButton.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor),
+            scheduleButton.bottomAnchor.constraint(equalTo: optionsBackgroundView.bottomAnchor),
+            scheduleButton.heightAnchor.constraint(equalToConstant: 75),
 
             cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             cancelButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
@@ -119,50 +234,41 @@ final class NewHabitViewController: UIViewController {
             createButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             createButton.bottomAnchor.constraint(equalTo: cancelButton.bottomAnchor),
             createButton.heightAnchor.constraint(equalTo: cancelButton.heightAnchor),
-            createButton.widthAnchor.constraint(equalTo: cancelButton.widthAnchor),
+            createButton.widthAnchor.constraint(equalTo: cancelButton.widthAnchor)
         ])
+    }
+
+    private func setupActions() {
+        cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
+        scheduleButton.addTarget(self, action: #selector(openSchedule), for: .touchUpInside)
     }
 
     // MARK: - Actions
 
-    private func setupActions() {
-        cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
-        scheduleButton.addTarget(self, action: #selector(scheduleButtonTapped), for: .touchUpInside)
-    }
-
     @objc private func cancelTapped() {
         dismiss(animated: true)
     }
-    
-    @objc private func scheduleButtonTapped() {
-        let scheduleVC = ScheduleViewController()
-        scheduleVC.selectedDays = selectedDays  // передаём текущее состояние
-        
-        // получаем результат обратно
-        scheduleVC.onScheduleSelected = { [weak self] days in
-            self?.selectedDays = days
-            // здесь можно обновить UI, например, показать краткое расписание
-        }
 
-        present(scheduleVC, animated: true)
-    }
-    
-    private func updateScheduleButtonTitle() {
-        if selectedDays.isEmpty {
-            scheduleButton.setTitle("Расписание", for: .normal)
-        } else {
-            let days = selectedDays.sorted(by: { $0.order < $1.order }).map { $0.shortName }.joined(separator: ", ")
-            scheduleButton.setTitle(days, for: .normal)
+    @objc private func openSchedule() {
+        let vc = ScheduleViewController()
+        vc.selectedDays = selectedDays
+        vc.onScheduleSelected = { [weak self] selected in
+            self?.selectedDays = selected
+            self?.scheduleValueLabel.text = selected
+                .sorted { $0.order < $1.order }
+                .map { $0.shortName }
+                .joined(separator: ", ")
         }
+        present(vc, animated: true)
     }
 }
 
-// MARK: - UITextField Padding Helper
+// MARK: - Padding Helper
 
 private extension UITextField {
-    func setLeftPaddingPoints(_ amount:CGFloat){
-        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: amount, height: self.frame.height))
-        self.leftView = paddingView
+    func setLeftPaddingPoints(_ amount: CGFloat) {
+        let padding = UIView(frame: CGRect(x: 0, y: 0, width: amount, height: self.frame.height))
+        self.leftView = padding
         self.leftViewMode = .always
     }
 }
