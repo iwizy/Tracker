@@ -1,33 +1,35 @@
-//
-//  TrackersViewController.swift
-//  Tracker
-//
-//  Created by Alexander Agafonov on 21.06.2025.
-//
-
 import UIKit
 
 final class TrackersViewController: UIViewController {
-    
+
     // MARK: - Public properties
     var categories: [TrackerCategory] = []
     var completedTrackers: [TrackerRecord] = []
-    
+
     // MARK: - Private properties
-    
+
+    private let datePicker: UIDatePicker = {
+        let picker = UIDatePicker()
+        picker.datePickerMode = .date
+        picker.preferredDatePickerStyle = .compact
+        picker.locale = Locale(identifier: "ru_RU")
+        picker.tintColor = .systemBlue
+        return picker
+    }()
+
     private let addTrackerButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(named: "add_tracker_icon"), for: .normal)
         return button
     }()
-    
+
     private let navigationButtonContainerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
+
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -36,7 +38,7 @@ final class TrackersViewController: UIViewController {
         label.textColor = UIColor(named: "YPBlack")
         return label
     }()
-    
+
     private let searchField: UITextField = {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -44,30 +46,27 @@ final class TrackersViewController: UIViewController {
         textField.backgroundColor = UIColor(hex: "#767680", alpha: 0.12)
         textField.font = .systemFont(ofSize: 17)
         textField.tintColor = UIColor(named: "YPGray")
-        
+
         let imageView = UIImageView(image: UIImage(systemName: "magnifyingglass"))
         imageView.contentMode = .center
         imageView.tintColor = UIColor(named: "YPGray")
-        
-        // Обёртка вокруг иконки
+
         let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 36, height: 24))
         imageView.frame = CGRect(x: 8, y: 4, width: 16, height: 16)
         containerView.addSubview(imageView)
-        
-        // Установка иконки в поле через контейнер
         textField.leftView = containerView
         textField.leftViewMode = .always
-        
+
         return textField
     }()
-    
+
     private let emptyPlaceholderImage: UIImageView = {
         let image = UIImageView(image: UIImage(named: "empty_placeholder"))
         image.translatesAutoresizingMaskIntoConstraints = false
         image.contentMode = .scaleAspectFit
         return image
     }()
-    
+
     private let emptyPlaceholderLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -77,7 +76,7 @@ final class TrackersViewController: UIViewController {
         label.textAlignment = .center
         return label
     }()
-    
+
     private lazy var emptyPlaceholderStack: UIStackView = {
         let stack = UIStackView(arrangedSubviews: [emptyPlaceholderImage, emptyPlaceholderLabel])
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -86,63 +85,159 @@ final class TrackersViewController: UIViewController {
         stack.spacing = 8
         return stack
     }()
-    
+
+    private let collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumInteritemSpacing = 8
+        layout.minimumLineSpacing = 16
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.backgroundColor = .clear
+        return collectionView
+    }()
+
+    private var filteredCategories: [TrackerCategory] = []
+
+    private var selectedDate = Date()
+
     // MARK: - Lifecycle
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar()
         setupViews()
         setupConstraints()
+
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.register(TrackerCell.self, forCellWithReuseIdentifier: TrackerCell.reuseIdentifier)
+
+        filterTrackers(for: selectedDate)
     }
-    
+
     // MARK: - Private methods
-    
+
     private func setupNavigationBar() {
         navigationButtonContainerView.addSubview(addTrackerButton)
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: navigationButtonContainerView)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
         addTrackerButton.addTarget(self, action: #selector(addTrackerButtonTapped), for: .touchUpInside)
+        datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
     }
-    
+
     private func setupViews() {
         view.addSubview(titleLabel)
         view.addSubview(searchField)
         view.addSubview(emptyPlaceholderStack)
-        
+        view.addSubview(collectionView)
+
         searchField.layer.cornerRadius = 10
         searchField.layer.masksToBounds = true
     }
-    
+
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            // Заголовок
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 1),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            
-            // Кнопка добавления трекера
-            addTrackerButton.leadingAnchor.constraint(equalTo: navigationButtonContainerView.leadingAnchor, constant: -10), // сдвиг влево
+
+            addTrackerButton.leadingAnchor.constraint(equalTo: navigationButtonContainerView.leadingAnchor, constant: -10),
             addTrackerButton.centerYAnchor.constraint(equalTo: navigationButtonContainerView.centerYAnchor),
             addTrackerButton.widthAnchor.constraint(equalToConstant: 42),
             addTrackerButton.heightAnchor.constraint(equalToConstant: 42),
-            
+
             navigationButtonContainerView.widthAnchor.constraint(equalToConstant: 60),
             navigationButtonContainerView.heightAnchor.constraint(equalToConstant: 44),
-            
-            // Поле поиска
+
             searchField.heightAnchor.constraint(equalToConstant: 36),
             searchField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 7),
             searchField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             searchField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            
-            // Заглушка
+
+            collectionView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 16),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
             emptyPlaceholderStack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             emptyPlaceholderStack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
         ])
     }
-    
+
+    private func filterTrackers(for date: Date) {
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: date)
+        let weekdaySymbol = calendar.weekdaySymbols[(weekday + 5) % 7]
+
+        filteredCategories = categories.map { category in
+            let trackers = category.trackers.filter { $0.schedule.contains(weekdaySymbol) }
+            return TrackerCategory(title: category.title, trackers: trackers)
+        }.filter { !$0.trackers.isEmpty }
+
+        collectionView.reloadData()
+        emptyPlaceholderStack.isHidden = !filteredCategories.isEmpty
+    }
+
     // MARK: - Actions
-    
+
+    @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
+        selectedDate = sender.date
+        filterTrackers(for: selectedDate)
+    }
+
     @objc private func addTrackerButtonTapped() {
-        print("Нажата кнопка добавления трекера")
+        let vc = NewHabitViewController()
+        vc.modalPresentationStyle = .automatic
+        present(vc, animated: true)
+    }
+}
+
+// MARK: - UICollectionViewDataSource
+
+extension TrackersViewController: UICollectionViewDataSource {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return filteredCategories.count
+    }
+
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return filteredCategories[section].trackers.count
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TrackerCell.reuseIdentifier, for: indexPath) as? TrackerCell else {
+            return UICollectionViewCell()
+        }
+
+        let tracker = filteredCategories[indexPath.section].trackers[indexPath.item]
+        let isCompleted = completedTrackers.contains { $0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }
+
+        cell.configure(with: tracker, isCompleted: isCompleted, count: completedTrackers.filter { $0.trackerId == tracker.id }.count)
+
+        cell.onToggle = { [weak self] in
+            guard let self else { return }
+            let today = Date()
+            if selectedDate > today { return }
+
+            if isCompleted {
+                self.completedTrackers.removeAll { $0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: self.selectedDate) }
+            } else {
+                self.completedTrackers.append(TrackerRecord(trackerId: tracker.id, date: self.selectedDate))
+            }
+
+            collectionView.reloadItems(at: [indexPath])
+        }
+
+        return cell
+    }
+}
+
+// MARK: - UICollectionViewDelegateFlowLayout
+
+extension TrackersViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let width = (collectionView.bounds.width - 8) / 2
+        return CGSize(width: width, height: 148)
     }
 }
