@@ -120,6 +120,15 @@ final class NewHabitViewController: UIViewController {
         button.backgroundColor = .clear
         return button
     }()
+    
+    private let buttonsStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .horizontal
+        stack.spacing = 8
+        stack.distribution = .fillEqually
+        return stack
+    }()
 
     private let cancelButton: UIButton = {
         let button = UIButton(type: .system)
@@ -163,8 +172,9 @@ final class NewHabitViewController: UIViewController {
         view.addSubview(titleLabel)
         view.addSubview(nameTextField)
         view.addSubview(optionsBackgroundView)
-        view.addSubview(cancelButton)
-        view.addSubview(createButton)
+        view.addSubview(buttonsStackView)
+        buttonsStackView.addArrangedSubview(cancelButton)
+        buttonsStackView.addArrangedSubview(createButton)
 
         
         optionsBackgroundView.addSubview(categoryArrow)
@@ -201,7 +211,7 @@ final class NewHabitViewController: UIViewController {
             categoryStackView.centerYAnchor.constraint(equalTo: categoryButton.centerYAnchor),
 
             categoryArrow.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor, constant: -16),
-            categoryArrow.centerYAnchor.constraint(equalTo: categoryLabel.centerYAnchor),
+            categoryArrow.centerYAnchor.constraint(equalTo: categoryButton.centerYAnchor),
 
             categoryButton.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor),
             categoryButton.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor),
@@ -211,7 +221,8 @@ final class NewHabitViewController: UIViewController {
             separator.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor, constant: 16),
             separator.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor, constant: -16),
             separator.topAnchor.constraint(equalTo: categoryButton.bottomAnchor),
-            separator.heightAnchor.constraint(equalToConstant: 1),
+           
+            separator.heightAnchor.constraint(equalToConstant: 1.0 / UIScreen.main.scale),
 
             
 
@@ -219,22 +230,17 @@ final class NewHabitViewController: UIViewController {
             scheduleStackView.centerYAnchor.constraint(equalTo: scheduleButton.centerYAnchor),
 
             scheduleArrow.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor, constant: -16),
-            scheduleArrow.centerYAnchor.constraint(equalTo: scheduleLabel.centerYAnchor),
+            scheduleArrow.centerYAnchor.constraint(equalTo: scheduleButton.centerYAnchor),
 
             scheduleButton.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor),
             scheduleButton.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor),
             scheduleButton.bottomAnchor.constraint(equalTo: optionsBackgroundView.bottomAnchor),
             scheduleButton.heightAnchor.constraint(equalToConstant: 75),
 
-            cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            cancelButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-            cancelButton.heightAnchor.constraint(equalToConstant: 60),
-            cancelButton.widthAnchor.constraint(equalToConstant: 166),
-
-            createButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            createButton.bottomAnchor.constraint(equalTo: cancelButton.bottomAnchor),
-            createButton.heightAnchor.constraint(equalTo: cancelButton.heightAnchor),
-            createButton.widthAnchor.constraint(equalTo: cancelButton.widthAnchor)
+            buttonsStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            buttonsStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            buttonsStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            buttonsStackView.heightAnchor.constraint(equalToConstant: 60)
         ])
     }
 
@@ -254,10 +260,20 @@ final class NewHabitViewController: UIViewController {
         vc.selectedDays = selectedDays
         vc.onScheduleSelected = { [weak self] selected in
             self?.selectedDays = selected
-            self?.scheduleValueLabel.text = selected
-                .sorted { $0.order < $1.order }
-                .map { $0.shortName }
-                .joined(separator: ", ")
+
+            let allDays = Set(WeekDay.allCases)
+            let text: String
+
+            if selected == allDays {
+                text = "Каждый день"
+            } else {
+                text = selected
+                    .sorted { $0.order < $1.order }
+                    .map { $0.shortName }
+                    .joined(separator: ", ")
+            }
+
+            self?.scheduleValueLabel.text = text
         }
         present(vc, animated: true)
     }
