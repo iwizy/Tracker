@@ -2,8 +2,7 @@
 //  Tracker.swift
 //  Tracker
 //
-//  Created by Alexander Agafonov on 22.06.2025.
-//
+//  Модель трекера
 
 import Foundation
 

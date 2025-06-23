@@ -2,8 +2,7 @@
 //  TabBarController.swift
 //  Tracker
 //
-//  Created by Alexander Agafonov on 21.06.2025.
-//
+//  Класс ТабБара
 
 import UIKit
 

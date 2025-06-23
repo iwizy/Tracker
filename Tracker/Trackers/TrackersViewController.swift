@@ -1,3 +1,9 @@
+//
+//  TrackersViewController.swift
+//  Tracker
+//
+//  Класс экрана списка трекеров
+
 import UIKit
 
 final class TrackersViewController: UIViewController {

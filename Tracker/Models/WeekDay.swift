@@ -2,8 +2,7 @@
 //  WeekDay.swift
 //  Tracker
 //
-//  Created by Alexander Agafonov on 22.06.2025.
-//
+//  Модель дней недели
 
 enum WeekDay: String, CaseIterable, Hashable {
     case monday = "Понедельник"

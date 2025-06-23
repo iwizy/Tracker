@@ -2,8 +2,7 @@
 //  UIColor.swift
 //  Tracker
 //
-//  Created by Alexander Agafonov on 21.06.2025.
-//
+//  Расширение для возможного использования HEX из кода
 
 import UIKit
 

@@ -2,8 +2,7 @@
 //  ScheduleViewController.swift
 //  Tracker
 //
-//  Created by Alexander Agafonov on 22.06.2025.
-//
+//  Класс экрана выбора расписания 
 
 import UIKit
 

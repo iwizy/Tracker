@@ -1,3 +1,9 @@
+//
+//  NewHabitViewController.swift
+//  Tracker
+//
+//  Класс экрана создания привычки
+
 import UIKit
 
 final class NewHabitViewController: UIViewController {

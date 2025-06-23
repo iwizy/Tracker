@@ -1,3 +1,9 @@
+//
+//  TrackerCell.swift
+//  Tracker
+//
+//  Класс ячейки трекера
+
 import UIKit
 
 final class TrackerCell: UICollectionViewCell {
