@@ -8,6 +8,8 @@ import UIKit
 
 final class NewHabitViewController: UIViewController {
 
+    var onCreateTracker: ((Tracker) -> Void)?
+    
     // MARK: - UI Elements
 
     private let titleLabel: UILabel = {
@@ -253,6 +255,8 @@ final class NewHabitViewController: UIViewController {
     private func setupActions() {
         cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
         scheduleButton.addTarget(self, action: #selector(openSchedule), for: .touchUpInside)
+        nameTextField.addTarget(self, action: #selector(nameFieldChanged), for: .editingChanged)
+        createButton.addTarget(self, action: #selector(createTapped), for: .touchUpInside)
     }
 
     // MARK: - Actions
@@ -266,6 +270,7 @@ final class NewHabitViewController: UIViewController {
         vc.selectedDays = selectedDays
         vc.onScheduleSelected = { [weak self] selected in
             self?.selectedDays = selected
+            self?.updateCreateButtonState()
 
             let allDays = Set(WeekDay.allCases)
             let text: String
@@ -283,6 +288,38 @@ final class NewHabitViewController: UIViewController {
         }
         present(vc, animated: true)
     }
+    
+    @objc private func nameFieldChanged() {
+        updateCreateButtonState()
+    }
+
+    private func updateCreateButtonState() {
+        let nameIsEmpty = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true
+        let hasSchedule = !selectedDays.isEmpty
+        createButton.isEnabled = !nameIsEmpty && hasSchedule
+        createButton.backgroundColor = createButton.isEnabled
+            ? UIColor(named: "YPBlack")
+            : UIColor(named: "YPGray")
+    }
+    
+    @objc private func createTapped() {
+        guard let name = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !name.isEmpty,
+              !selectedDays.isEmpty else {
+            return
+        }
+
+        let tracker = Tracker(
+            id: UUID(),
+            name: name,
+            color: "ColorSection15",
+            emoji: "🐱",
+            schedule: selectedDays.map { $0.rawValue }
+        )
+        onCreateTracker?(tracker)
+        dismiss(animated: true)
+    }
+    
 }
 
 // MARK: - Padding Helper

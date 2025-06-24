@@ -10,6 +10,7 @@ final class TabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTabs()
+        setupTabBarAppearance()
     }
     
     override func viewDidLayoutSubviews() {
@@ -30,11 +31,19 @@ final class TabBarController: UITabBarController {
             image: UIImage(named: "tab_statistics"),
             tag: 1)
         
-        // Можно обернуть в UINavigationController, если нужно
         viewControllers = [
             UINavigationController(rootViewController: trackersVC),
             UINavigationController(rootViewController: statisticsVC)
         ]
+    }
+    
+    private func setupTabBarAppearance() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(named: "YPWhite")
+
+        tabBar.standardAppearance = appearance
+        tabBar.scrollEdgeAppearance = appearance
     }
     
     private func addTopBorderToTabBar() {

@@ -9,7 +9,9 @@ import UIKit
 final class TrackersViewController: UIViewController {
 
     // MARK: - Public properties
-    var categories: [TrackerCategory] = []
+    var categories: [TrackerCategory] = [
+        TrackerCategory(title: "Привычки", trackers: [])
+    ]
     var completedTrackers: [TrackerRecord] = []
 
     // MARK: - Private properties
@@ -120,6 +122,12 @@ final class TrackersViewController: UIViewController {
         collectionView.register(TrackerCell.self, forCellWithReuseIdentifier: TrackerCell.reuseIdentifier)
 
         filterTrackers(for: selectedDate)
+        
+        collectionView.register(
+            TrackerSectionHeader.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: TrackerSectionHeader.reuseIdentifier
+        )
     }
 
     // MARK: - Private methods
@@ -173,7 +181,8 @@ final class TrackersViewController: UIViewController {
     private func filterTrackers(for date: Date) {
         let calendar = Calendar.current
         let weekday = calendar.component(.weekday, from: date)
-        let weekdaySymbol = calendar.weekdaySymbols[(weekday + 5) % 7]
+        let weekdayEnum = WeekDay.allCases[(weekday + 5) % 7]
+        let weekdaySymbol = weekdayEnum.rawValue
 
         filteredCategories = categories.map { category in
             let trackers = category.trackers.filter { $0.schedule.contains(weekdaySymbol) }
@@ -194,9 +203,22 @@ final class TrackersViewController: UIViewController {
     @objc private func addTrackerButtonTapped() {
         let vc = NewHabitViewController()
         vc.modalPresentationStyle = .automatic
+        vc.onCreateTracker = { [weak self] tracker in
+            guard let self else { return }
+
+            if let index = self.categories.firstIndex(where: { $0.title == "Привычки" }) {
+                var updated = self.categories[index]
+                updated.trackers.append(tracker)
+                self.categories[index] = updated
+            } else {
+                self.categories.append(TrackerCategory(title: "Привычки", trackers: [tracker]))
+            }
+            self.filterTrackers(for: self.selectedDate)
+        }
         present(vc, animated: true)
     }
 }
+
 
 // MARK: - UICollectionViewDataSource
 
@@ -215,17 +237,29 @@ extension TrackersViewController: UICollectionViewDataSource {
         }
 
         let tracker = filteredCategories[indexPath.section].trackers[indexPath.item]
-        let isCompleted = completedTrackers.contains { $0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }
 
-        cell.configure(with: tracker, isCompleted: isCompleted, count: completedTrackers.filter { $0.trackerId == tracker.id }.count)
+        let isCompleted = completedTrackers.contains {
+            $0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: selectedDate)
+        }
+
+        let completedCount = completedTrackers.filter {
+            $0.trackerId == tracker.id
+        }.count
+
+        cell.configure(with: tracker, isCompleted: isCompleted, count: completedCount)
 
         cell.onToggle = { [weak self] in
             guard let self else { return }
-            let today = Date()
-            if selectedDate > today { return }
+
+            let calendar = Calendar.current
+            if calendar.compare(self.selectedDate, to: Date(), toGranularity: .day) == .orderedDescending {
+                return 
+            }
 
             if isCompleted {
-                self.completedTrackers.removeAll { $0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: self.selectedDate) }
+                self.completedTrackers.removeAll {
+                    $0.trackerId == tracker.id && calendar.isDate($0.date, inSameDayAs: self.selectedDate)
+                }
             } else {
                 self.completedTrackers.append(TrackerRecord(trackerId: tracker.id, date: self.selectedDate))
             }
@@ -246,4 +280,31 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         let width = (collectionView.bounds.width - 8) / 2
         return CGSize(width: width, height: 148)
     }
+    
+    func collectionView(
+            _ collectionView: UICollectionView,
+            viewForSupplementaryElementOfKind kind: String,
+            at indexPath: IndexPath
+        ) -> UICollectionReusableView {
+            guard kind == UICollectionView.elementKindSectionHeader,
+                  let header = collectionView.dequeueReusableSupplementaryView(
+                    ofKind: kind,
+                    withReuseIdentifier: TrackerSectionHeader.reuseIdentifier,
+                    for: indexPath
+                  ) as? TrackerSectionHeader else {
+                return UICollectionReusableView()
+            }
+
+            let category = filteredCategories[indexPath.section]
+            header.configure(with: category.title)
+            return header
+        }
+
+        func collectionView(
+            _ collectionView: UICollectionView,
+            layout collectionViewLayout: UICollectionViewLayout,
+            referenceSizeForHeaderInSection section: Int
+        ) -> CGSize {
+            return CGSize(width: collectionView.bounds.width, height: 32)
+        }
 }
