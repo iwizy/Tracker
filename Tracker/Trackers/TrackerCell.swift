@@ -11,71 +11,107 @@ final class TrackerCell: UICollectionViewCell {
 
     var onToggle: (() -> Void)?
 
-    private let cardView = UIView()
-    private let emojiBackgroundView = UIView()
-    private let emojiLabel = UILabel()
-    private let nameLabel = UILabel()
-    private let counterLabel = UILabel()
-    private let toggleButton = UIButton()
+    // MARK: - UI
+
+    private let cardView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.cornerRadius = 16
+        view.layer.masksToBounds = true
+        return view
+    }()
+
+    private let emojiBackgroundView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.cornerRadius = 12
+        view.layer.masksToBounds = true
+        return view
+    }()
+
+    private let emojiLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 16)
+        return label
+    }()
+
+    private let nameLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 12, weight: .medium)
+        label.textColor = UIColor(named: "YPWhite")
+        label.numberOfLines = 2
+        label.textAlignment = .left
+        return label
+    }()
+
+    private let counterLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 12)
+        label.textColor = UIColor(named: "YPBlack")
+        return label
+    }()
+
+    private let toggleButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.tintColor = UIColor(named: "YPWhite")
+        button.layer.cornerRadius = 17
+        button.layer.masksToBounds = true
+        return button
+    }()
+
+    // MARK: - Lifecycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setupUI()
+        setupViews()
+        setupConstraints()
+        toggleButton.addTarget(self, action: #selector(toggleTapped), for: .touchUpInside)
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Configuration
+
     func configure(with tracker: Tracker, isCompleted: Bool, count: Int) {
         let background = UIColor(named: tracker.color) ?? UIColor(hex: tracker.color)
 
         cardView.backgroundColor = background
-        emojiBackgroundView.backgroundColor = background.withAlphaComponent(0.3)
+        emojiBackgroundView.backgroundColor = UIColor(named: "YPWhite")?.withAlphaComponent(0.3)
         emojiLabel.text = tracker.emoji
         nameLabel.text = tracker.name
         counterLabel.text = "\(count) \(pluralizedDay(count))"
 
         let iconName = isCompleted ? "checkmark" : "plus"
-        toggleButton.setImage(UIImage(systemName: iconName), for: .normal)
+        let image = UIImage(
+            systemName: iconName,
+            withConfiguration: UIImage.SymbolConfiguration(pointSize: 12, weight: .medium)
+        )
+
+        toggleButton.setImage(image, for: .normal)
         toggleButton.tintColor = .white
         toggleButton.backgroundColor = isCompleted ? background.withAlphaComponent(0.3) : background
     }
 
-    private func setupUI() {
-        [cardView, counterLabel, toggleButton].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            contentView.addSubview($0)
-        }
+    // MARK: - Setup
 
-        [emojiBackgroundView, nameLabel].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            cardView.addSubview($0)
-        }
+    private func setupViews() {
+        contentView.addSubview(cardView)
+        contentView.addSubview(counterLabel)
+        contentView.addSubview(toggleButton)
 
+        cardView.addSubview(emojiBackgroundView)
         emojiBackgroundView.addSubview(emojiLabel)
-        emojiLabel.translatesAutoresizingMaskIntoConstraints = false
+        cardView.addSubview(nameLabel)
+    }
 
-        emojiLabel.font = .systemFont(ofSize: 16)
-        nameLabel.font = .systemFont(ofSize: 16, weight: .semibold)
-        nameLabel.textColor = .white
-        nameLabel.numberOfLines = 2
-        nameLabel.textAlignment = .left
-        counterLabel.font = .systemFont(ofSize: 13)
-        counterLabel.textColor = UIColor(named: "YPBlack")
-
-        emojiBackgroundView.layer.cornerRadius = 12
-        emojiBackgroundView.layer.masksToBounds = true
-
-        cardView.layer.cornerRadius = 16
-        cardView.layer.masksToBounds = true
-
-        toggleButton.layer.cornerRadius = 17
-        toggleButton.layer.masksToBounds = true
-        toggleButton.addTarget(self, action: #selector(toggleTapped), for: .touchUpInside)
-
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
-            
             cardView.topAnchor.constraint(equalTo: contentView.topAnchor),
             cardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             cardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
@@ -89,13 +125,14 @@ final class TrackerCell: UICollectionViewCell {
             emojiLabel.centerXAnchor.constraint(equalTo: emojiBackgroundView.centerXAnchor),
             emojiLabel.centerYAnchor.constraint(equalTo: emojiBackgroundView.centerYAnchor),
 
-            nameLabel.topAnchor.constraint(equalTo: emojiBackgroundView.bottomAnchor, constant: 8),
             nameLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
             nameLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -12),
+            nameLabel.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -12),
 
             counterLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
             counterLabel.topAnchor.constraint(equalTo: cardView.bottomAnchor, constant: 16),
-
+            
+            toggleButton.topAnchor.constraint(equalTo: cardView.bottomAnchor, constant: 8),
             toggleButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
             toggleButton.centerYAnchor.constraint(equalTo: counterLabel.centerYAnchor),
             toggleButton.widthAnchor.constraint(equalToConstant: 34),
@@ -103,9 +140,13 @@ final class TrackerCell: UICollectionViewCell {
         ])
     }
 
+    // MARK: - Actions
+
     @objc private func toggleTapped() {
         onToggle?()
     }
+
+    // MARK: - Helpers
 
     private func pluralizedDay(_ count: Int) -> String {
         let rem10 = count % 10
