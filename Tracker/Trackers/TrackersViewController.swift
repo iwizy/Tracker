@@ -12,6 +12,7 @@ final class TrackersViewController: UIViewController {
     var categories: [TrackerCategory] = [
         TrackerCategory(title: "Привычки", trackers: [])
     ]
+    
     var completedTrackers: [TrackerRecord] = []
 
     // MARK: - Private properties
@@ -207,12 +208,16 @@ final class TrackersViewController: UIViewController {
             guard let self else { return }
 
             if let index = self.categories.firstIndex(where: { $0.title == "Привычки" }) {
-                var updated = self.categories[index]
-                updated.trackers.append(tracker)
-                self.categories[index] = updated
+                let existing = self.categories[index]
+                let updatedCategory = TrackerCategory(
+                    title: existing.title,
+                    trackers: existing.trackers + [tracker]
+                )
+                self.categories[index] = updatedCategory
             } else {
                 self.categories.append(TrackerCategory(title: "Привычки", trackers: [tracker]))
             }
+
             self.filterTrackers(for: self.selectedDate)
         }
         present(vc, animated: true)
