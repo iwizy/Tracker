@@ -14,6 +14,12 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     private var nameToOptionsConstraint: NSLayoutConstraint?
     private var selectedDays: Set<WeekDay> = []
 
+    private let scrollView: UIScrollView = {
+        let scroll = UIScrollView()
+        scroll.translatesAutoresizingMaskIntoConstraints = false
+        return scroll
+    }()
+    
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -188,15 +194,31 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         setupConstraints()
         setupActions()
         nameTextField.delegate = self
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
     private func setupViews() {
-        view.addSubview(titleLabel)
-        view.addSubview(nameFieldStack)
+        view.addSubview(scrollView)
+        scrollView.addSubview(titleLabel)
+        scrollView.addSubview(nameFieldStack)
         nameFieldStack.addArrangedSubview(nameTextField)
         nameFieldStack.addArrangedSubview(errorLabel)
-        view.addSubview(optionsBackgroundView)
-        view.addSubview(buttonsStackView)
+        scrollView.addSubview(optionsBackgroundView)
+        scrollView.addSubview(buttonsStackView)
 
         buttonsStackView.addArrangedSubview(cancelButton)
         buttonsStackView.addArrangedSubview(createButton)
@@ -217,6 +239,11 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
 
     private func setupConstraints() {
         NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
             titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 27),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 
@@ -317,6 +344,24 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
             self.view.layoutIfNeeded()
         }
     }
+    
+    @objc private func keyboardWillShow(notification: NSNotification) {
+        guard let userInfo = notification.userInfo,
+              let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+
+        let contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height + 20, right: 0)
+        scrollView.contentInset = contentInset
+        scrollView.scrollIndicatorInsets = contentInset
+    }
+
+    @objc private func keyboardWillHide(notification: NSNotification) {
+        scrollView.contentInset = .zero
+        scrollView.scrollIndicatorInsets = .zero
+    }
+    
+    @objc private func hideKeyboard() {
+        view.endEditing(true)
+    }
 
     private func updateCreateButtonState() {
         let nameIsEmpty = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true
@@ -349,6 +394,11 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
 
         return updatedText.count <= 38
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }
 
