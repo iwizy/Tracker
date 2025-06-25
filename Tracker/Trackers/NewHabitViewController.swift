@@ -6,10 +6,14 @@
 
 import UIKit
 
-final class NewHabitViewController: UIViewController {
+final class NewHabitViewController: UIViewController, UITextFieldDelegate {
 
     var onCreateTracker: ((Tracker) -> Void)?
-    
+
+    // MARK: - Layout Constraints
+    private var errorBottomConstraint: NSLayoutConstraint?
+    private var nameToOptionsConstraint: NSLayoutConstraint?
+
     // MARK: - UI Elements
 
     private let titleLabel: UILabel = {
@@ -34,6 +38,26 @@ final class NewHabitViewController: UIViewController {
         return textField
     }()
 
+    private let errorLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Ограничение 38 символов"
+        label.textColor = UIColor(named: "YPRed")
+        label.font = .systemFont(ofSize: 17)
+        label.textAlignment = .center
+        label.alpha = 0
+        label.isHidden = false
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let nameFieldStack: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.spacing = 8
+        return stack
+    }()
+
     private let optionsBackgroundView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -49,7 +73,7 @@ final class NewHabitViewController: UIViewController {
         label.font = UIFont.systemFont(ofSize: 17)
         return label
     }()
-    
+
     private let categoryValueLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -87,8 +111,7 @@ final class NewHabitViewController: UIViewController {
         view.backgroundColor = UIColor(named: "YPGray")
         return view
     }()
-    
-    
+
     private let scheduleStackView: UIStackView = {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -128,7 +151,7 @@ final class NewHabitViewController: UIViewController {
         button.backgroundColor = .clear
         return button
     }()
-    
+
     private let buttonsStackView: UIStackView = {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -172,19 +195,22 @@ final class NewHabitViewController: UIViewController {
         setupViews()
         setupConstraints()
         setupActions()
+        nameTextField.delegate = self
     }
 
     // MARK: - Setup
 
     private func setupViews() {
         view.addSubview(titleLabel)
-        view.addSubview(nameTextField)
+        view.addSubview(nameFieldStack)
+        nameFieldStack.addArrangedSubview(nameTextField)
+        nameFieldStack.addArrangedSubview(errorLabel)
         view.addSubview(optionsBackgroundView)
         view.addSubview(buttonsStackView)
+
         buttonsStackView.addArrangedSubview(cancelButton)
         buttonsStackView.addArrangedSubview(createButton)
 
-        
         optionsBackgroundView.addSubview(categoryArrow)
         optionsBackgroundView.addSubview(categoryButton)
         categoryStackView.addArrangedSubview(categoryLabel)
@@ -204,17 +230,15 @@ final class NewHabitViewController: UIViewController {
             titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 27),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 
-            nameTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 38),
-            nameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            nameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            nameFieldStack.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 38),
+            nameFieldStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            nameFieldStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             nameTextField.heightAnchor.constraint(equalToConstant: 75),
 
-            optionsBackgroundView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 24),
             optionsBackgroundView.leadingAnchor.constraint(equalTo: nameTextField.leadingAnchor),
             optionsBackgroundView.trailingAnchor.constraint(equalTo: nameTextField.trailingAnchor),
             optionsBackgroundView.heightAnchor.constraint(equalToConstant: 150),
 
-          
             categoryStackView.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor, constant: 16),
             categoryStackView.centerYAnchor.constraint(equalTo: categoryButton.centerYAnchor),
 
@@ -229,10 +253,7 @@ final class NewHabitViewController: UIViewController {
             separator.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor, constant: 16),
             separator.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor, constant: -16),
             separator.topAnchor.constraint(equalTo: categoryButton.bottomAnchor),
-           
             separator.heightAnchor.constraint(equalToConstant: 1.0 / UIScreen.main.scale),
-
-            
 
             scheduleStackView.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor, constant: 16),
             scheduleStackView.centerYAnchor.constraint(equalTo: scheduleButton.centerYAnchor),
@@ -250,6 +271,12 @@ final class NewHabitViewController: UIViewController {
             buttonsStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
             buttonsStackView.heightAnchor.constraint(equalToConstant: 60)
         ])
+
+        errorBottomConstraint = optionsBackgroundView.topAnchor.constraint(equalTo: errorLabel.bottomAnchor, constant: 32)
+        nameToOptionsConstraint = optionsBackgroundView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 24)
+
+        nameToOptionsConstraint?.isActive = true
+        errorBottomConstraint?.isActive = false
     }
 
     private func setupActions() {
@@ -288,20 +315,28 @@ final class NewHabitViewController: UIViewController {
         }
         present(vc, animated: true)
     }
-    
+
     @objc private func nameFieldChanged() {
         updateCreateButtonState()
+
+        let trimmedText = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let isAtLimit = trimmedText.count >= 38
+
+        UIView.animate(withDuration: 0.25) {
+            self.errorLabel.alpha = isAtLimit ? 1 : 0
+            self.errorBottomConstraint?.isActive = isAtLimit
+            self.nameToOptionsConstraint?.isActive = !isAtLimit
+            self.view.layoutIfNeeded()
+        }
     }
 
     private func updateCreateButtonState() {
         let nameIsEmpty = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true
         let hasSchedule = !selectedDays.isEmpty
         createButton.isEnabled = !nameIsEmpty && hasSchedule
-        createButton.backgroundColor = createButton.isEnabled
-            ? UIColor(named: "YPBlack")
-            : UIColor(named: "YPGray")
+        createButton.backgroundColor = createButton.isEnabled ? UIColor(named: "YPBlack") : UIColor(named: "YPGray")
     }
-    
+
     @objc private func createTapped() {
         guard let name = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
               !name.isEmpty,
@@ -319,10 +354,15 @@ final class NewHabitViewController: UIViewController {
         onCreateTracker?(tracker)
         dismiss(animated: true)
     }
-    
-}
 
-// MARK: - Padding Helper
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let currentText = textField.text ?? ""
+        guard let stringRange = Range(range, in: currentText) else { return false }
+        let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
+
+        return updatedText.count <= 38
+    }
+}
 
 private extension UITextField {
     func setLeftPaddingPoints(_ amount: CGFloat) {
