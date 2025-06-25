@@ -9,12 +9,10 @@ import UIKit
 final class NewHabitViewController: UIViewController, UITextFieldDelegate {
 
     var onCreateTracker: ((Tracker) -> Void)?
-
-    // MARK: - Layout Constraints
+    
     private var errorBottomConstraint: NSLayoutConstraint?
     private var nameToOptionsConstraint: NSLayoutConstraint?
-
-    // MARK: - UI Elements
+    private var selectedDays: Set<WeekDay> = []
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -183,12 +181,6 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         return button
     }()
 
-    // MARK: - Properties
-
-    private var selectedDays: Set<WeekDay> = []
-
-    // MARK: - Lifecycle
-
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -197,8 +189,6 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         setupActions()
         nameTextField.delegate = self
     }
-
-    // MARK: - Setup
 
     private func setupViews() {
         view.addSubview(titleLabel)
@@ -285,8 +275,6 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         nameTextField.addTarget(self, action: #selector(nameFieldChanged), for: .editingChanged)
         createButton.addTarget(self, action: #selector(createTapped), for: .touchUpInside)
     }
-
-    // MARK: - Actions
 
     @objc private func cancelTapped() {
         dismiss(animated: true)

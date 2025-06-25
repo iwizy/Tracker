@@ -2,15 +2,14 @@
 //  ScheduleViewController.swift
 //  Tracker
 //
-//  Класс экрана выбора расписания 
+//  Класс экрана выбора расписания
 
 import UIKit
 
 final class ScheduleViewController: UIViewController {
-
     var selectedDays: Set<WeekDay> = []
     var onScheduleSelected: ((Set<WeekDay>) -> Void)?
-    
+
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -19,7 +18,7 @@ final class ScheduleViewController: UIViewController {
         label.textAlignment = .center
         return label
     }()
-
+    
     private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -27,7 +26,6 @@ final class ScheduleViewController: UIViewController {
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         return tableView
     }()
-
 
     private let doneButton: UIButton = {
         let button = UIButton(type: .system)
@@ -48,17 +46,17 @@ final class ScheduleViewController: UIViewController {
         return view
     }()
 
-    var onSave: (([WeekDay]) -> Void)?
-
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+
         setupTableView()
         setupLayout()
         setupDoneButtonConstraints()
+
         doneButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
+
         tableView.isScrollEnabled = false
-        tableView.backgroundColor = .clear
     }
 
     private func setupTableView() {
@@ -70,28 +68,23 @@ final class ScheduleViewController: UIViewController {
     private func setupLayout() {
         view.addSubview(titleLabel)
         view.addSubview(backgroundContainerView)
-        backgroundContainerView.translatesAutoresizingMaskIntoConstraints = false
         backgroundContainerView.addSubview(tableView)
         view.addSubview(doneButton)
 
         NSLayoutConstraint.activate([
-            // Заголовок "Расписание"
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 27),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 
-            // Подложка под таблицу — сразу под заголовком
             backgroundContainerView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
             backgroundContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             backgroundContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             backgroundContainerView.heightAnchor.constraint(equalToConstant: CGFloat(WeekDay.allCases.count) * 75),
 
-            // Таблица внутри подложки
             tableView.topAnchor.constraint(equalTo: backgroundContainerView.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: backgroundContainerView.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: backgroundContainerView.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: backgroundContainerView.bottomAnchor),
 
-            // Кнопка "Готово"
             doneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             doneButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
@@ -114,7 +107,6 @@ final class ScheduleViewController: UIViewController {
     }
 }
 
-// MARK: - Table View Delegate & Data Source
 
 extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -126,15 +118,20 @@ extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: ScheduleCell.reuseIdentifier, for: indexPath) as? ScheduleCell else {
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: ScheduleCell.reuseIdentifier,
+            for: indexPath
+        ) as? ScheduleCell else {
             return UITableViewCell()
         }
 
         let day = WeekDay.allCases[indexPath.row]
         let isLast = indexPath.row == WeekDay.allCases.count - 1
+
         cell.configure(with: day, isOn: selectedDays.contains(day), isLast: isLast)
         cell.toggleSwitch.tag = indexPath.row
         cell.toggleSwitch.addTarget(self, action: #selector(switchToggled(_:)), for: .valueChanged)
+
         return cell
     }
 

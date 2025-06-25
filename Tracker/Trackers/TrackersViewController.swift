@@ -7,15 +7,11 @@
 import UIKit
 
 final class TrackersViewController: UIViewController {
-
-    // MARK: - Public properties
     var categories: [TrackerCategory] = [
         TrackerCategory(title: "Привычки", trackers: [])
     ]
     
     var completedTrackers: [TrackerRecord] = []
-
-    // MARK: - Private properties
 
     private let datePicker: UIDatePicker = {
         let picker = UIDatePicker()
@@ -110,8 +106,6 @@ final class TrackersViewController: UIViewController {
 
     private var selectedDate = Date()
 
-    // MARK: - Lifecycle
-
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar()
@@ -131,7 +125,6 @@ final class TrackersViewController: UIViewController {
         )
     }
 
-    // MARK: - Private methods
 
     private func setupNavigationBar() {
         navigationButtonContainerView.addSubview(addTrackerButton)
@@ -194,7 +187,6 @@ final class TrackersViewController: UIViewController {
         emptyPlaceholderStack.isHidden = !filteredCategories.isEmpty
     }
 
-    // MARK: - Actions
 
     @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
         selectedDate = sender.date
@@ -224,8 +216,6 @@ final class TrackersViewController: UIViewController {
     }
 }
 
-
-// MARK: - UICollectionViewDataSource
 
 extension TrackersViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -275,8 +265,6 @@ extension TrackersViewController: UICollectionViewDataSource {
         return cell
     }
 }
-
-// MARK: - UICollectionViewDelegateFlowLayout
 
 extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,

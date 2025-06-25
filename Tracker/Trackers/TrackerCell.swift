@@ -11,8 +11,6 @@ final class TrackerCell: UICollectionViewCell {
 
     var onToggle: (() -> Void)?
 
-    // MARK: - UI
-
     private let cardView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -63,7 +61,6 @@ final class TrackerCell: UICollectionViewCell {
         return button
     }()
 
-    // MARK: - Lifecycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -76,7 +73,6 @@ final class TrackerCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Configuration
 
     func configure(with tracker: Tracker, isCompleted: Bool, count: Int) {
         let background = UIColor(named: tracker.color) ?? UIColor(hex: tracker.color)
@@ -98,7 +94,6 @@ final class TrackerCell: UICollectionViewCell {
         toggleButton.backgroundColor = isCompleted ? background.withAlphaComponent(0.3) : background
     }
 
-    // MARK: - Setup
 
     private func setupViews() {
         contentView.addSubview(cardView)
@@ -140,13 +135,11 @@ final class TrackerCell: UICollectionViewCell {
         ])
     }
 
-    // MARK: - Actions
 
     @objc private func toggleTapped() {
         onToggle?()
     }
 
-    // MARK: - Helpers
 
     private func pluralizedDay(_ count: Int) -> String {
         let rem10 = count % 10

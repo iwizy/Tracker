@@ -8,6 +8,13 @@ import UIKit
 
 final class ScheduleCell: UITableViewCell {
     static let reuseIdentifier = "ScheduleCell"
+    
+    let toggleSwitch: UISwitch = {
+        let toggle = UISwitch()
+        toggle.translatesAutoresizingMaskIntoConstraints = false
+        toggle.onTintColor = UIColor(named: "YPBlue")
+        return toggle
+    }()
 
     private let dayLabel: UILabel = {
         let label = UILabel()
@@ -16,21 +23,14 @@ final class ScheduleCell: UITableViewCell {
         label.textColor = UIColor(named: "YPBlack") ?? .label
         return label
     }()
-
-    let toggleSwitch: UISwitch = {
-        let toggle = UISwitch()
-        toggle.translatesAutoresizingMaskIntoConstraints = false
-        toggle.onTintColor = UIColor(named: "YPBlue")
-        return toggle
-    }()
-
+    
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = UIColor(named: "YPGray") ?? .lightGray
         return view
     }()
-
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
@@ -42,6 +42,20 @@ final class ScheduleCell: UITableViewCell {
         contentView.addSubview(toggleSwitch)
         contentView.addSubview(separatorView)
 
+        setupConstraints()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func configure(with day: WeekDay, isOn: Bool, isLast: Bool) {
+        dayLabel.text = day.rawValue
+        toggleSwitch.isOn = isOn
+        separatorView.isHidden = isLast
+    }
+    
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             dayLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             dayLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
@@ -54,15 +68,5 @@ final class ScheduleCell: UITableViewCell {
             separatorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 1.0 / UIScreen.main.scale)
         ])
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    func configure(with day: WeekDay, isOn: Bool, isLast: Bool) {
-        dayLabel.text = day.rawValue
-        toggleSwitch.isOn = isOn
-        separatorView.isHidden = isLast
     }
 }
