@@ -30,14 +30,14 @@ final class TabBarController: UITabBarController {
         let trackersVC = TrackersViewController()
         trackersVC.tabBarItem = UITabBarItem(
             title: "Трекеры",
-            image: UIImage(named: "tab_trackers"),
+            image: UIImage(resource: .tabTrackers),
             tag: 0)
         
         // Создаём контроллер статистики
         let statisticsVC = StatisticsViewController()
         statisticsVC.tabBarItem = UITabBarItem(
             title: "Статистика",
-            image: UIImage(named: "tab_statistics"),
+            image: UIImage(resource: .tabStatistics),
             tag: 1)
         
         // Оборачиваем контроллеры в UINavigationController
@@ -51,7 +51,7 @@ final class TabBarController: UITabBarController {
     private func setupTabBarAppearance() {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(named: "YPWhite")
+        appearance.backgroundColor = UIColor(resource: .ypWhite)
         
         tabBar.standardAppearance = appearance
         tabBar.scrollEdgeAppearance = appearance
@@ -67,7 +67,7 @@ final class TabBarController: UITabBarController {
                 width: tabBar.bounds.width,
                 height: lineHeight)
         )
-        lineView.backgroundColor = UIColor(named: "YPLightGray")
+        lineView.backgroundColor = UIColor(resource: .ypLightGray)
         lineView.tag = 999
         
         // Добавляем линию, если она ещё не добавлена

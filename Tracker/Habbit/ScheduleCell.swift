@@ -13,7 +13,7 @@ final class ScheduleCell: UITableViewCell {
     let toggleSwitch: UISwitch = {
         let toggle = UISwitch()
         toggle.translatesAutoresizingMaskIntoConstraints = false
-        toggle.onTintColor = UIColor(named: "YPBlue") // Цвет переключателя в активном состоянии
+        toggle.onTintColor = UIColor(resource: .ypBlue) // Цвет переключателя в активном состоянии
         return toggle
     }()
     
@@ -23,7 +23,7 @@ final class ScheduleCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 17)
-        label.textColor = UIColor(named: "YPBlack") ?? .label
+        label.textColor = UIColor(resource: .ypBlack)
         return label
     }()
     
@@ -31,7 +31,7 @@ final class ScheduleCell: UITableViewCell {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor(named: "YPGray") ?? .lightGray
+        view.backgroundColor = UIColor(resource: .ypGray)
         return view
     }()
     

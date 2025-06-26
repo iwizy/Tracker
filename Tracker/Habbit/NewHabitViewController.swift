@@ -33,8 +33,8 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "Введите название трекера"
-        textField.backgroundColor = UIColor(named: "Background")
-        textField.tintColor = UIColor(named: "YPGray")
+        textField.backgroundColor = UIColor(resource: .background)
+        textField.tintColor = UIColor(resource: .ypGray)
         textField.layer.cornerRadius = 16
         textField.font = UIFont.systemFont(ofSize: 17)
         textField.clearButtonMode = .whileEditing
@@ -45,7 +45,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     private let errorLabel: UILabel = {
         let label = UILabel()
         label.text = "Ограничение 38 символов"
-        label.textColor = UIColor(named: "YPRed")
+        label.textColor = UIColor(resource: .ypRed)
         label.font = .systemFont(ofSize: 17)
         label.textAlignment = .center
         label.alpha = 0
@@ -65,7 +65,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     private let optionsBackgroundView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor(named: "Background")
+        view.backgroundColor = UIColor(resource: .background)
         view.layer.cornerRadius = 16
         return view
     }()
@@ -81,7 +81,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     private let categoryValueLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = UIColor(named: "YPGray")
+        label.textColor = UIColor(resource: .ypGray)
         label.font = UIFont.systemFont(ofSize: 17)
         return label
     }()
@@ -98,7 +98,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     private let categoryArrow: UIImageView = {
         let imageView = UIImageView(image: UIImage(systemName: "chevron.right"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.tintColor = UIColor(named: "YPGray")
+        imageView.tintColor = UIColor(resource: .ypGray)
         return imageView
     }()
 
@@ -112,7 +112,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     private let separator: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor(named: "YPGray")
+        view.backgroundColor = UIColor(resource: .ypGray)
         return view
     }()
 
@@ -129,7 +129,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Расписание"
-        label.textColor = UIColor(named: "YPBlack")
+        label.textColor = UIColor(resource: .ypBlack)
         label.font = UIFont.systemFont(ofSize: 17)
         return label
     }()
@@ -137,7 +137,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     private let scheduleValueLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = UIColor(named: "YPGray")
+        label.textColor = UIColor(resource: .ypGray)
         label.font = UIFont.systemFont(ofSize: 17)
         return label
     }()
@@ -171,7 +171,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         button.setTitle("Отменить", for: .normal)
         button.setTitleColor(.red, for: .normal)
         button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor(named: "YPRed")?.cgColor
+        button.layer.borderColor = UIColor(resource: .ypRed).cgColor
         button.layer.cornerRadius = 16
         return button
     }()
@@ -181,7 +181,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Создать", for: .normal)
         button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = UIColor(named: "YPGray")
+        button.backgroundColor = UIColor(resource: .ypGray)
         button.layer.cornerRadius = 16
         button.isEnabled = false
         return button
