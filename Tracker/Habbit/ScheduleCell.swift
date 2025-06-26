@@ -7,6 +7,7 @@
 import UIKit
 
 final class ScheduleCell: UITableViewCell {
+    static let reuseIdentifier = "ScheduleCell"
     // MARK: - Public Properties
     /// Переключатель (вкл/выкл) для выбранного дня
     let toggleSwitch: UISwitch = {
