@@ -12,7 +12,7 @@ final class TrackersViewController: UIViewController {
     var categories: [TrackerCategory] = [
         TrackerCategory(title: "Привычки", trackers: [])
     ]
-
+    
     /// Массив завершённых трекеров с датами
     var completedTrackers: [TrackerRecord] = []
     
@@ -37,7 +37,8 @@ final class TrackersViewController: UIViewController {
     private let addTrackerButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(named: "add_tracker_icon"), for: .normal)
+        button.setImage(UIImage(named: "add_tracker_icon")?.withRenderingMode(.alwaysTemplate), for: .normal)
+        button.tintColor = UIColor(resource: .ypBlack)
         return button
     }()
     
@@ -54,7 +55,7 @@ final class TrackersViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Трекеры"
         label.font = .systemFont(ofSize: 34, weight: .bold)
-        label.textColor = UIColor(named: "YPBlack")
+        label.textColor = UIColor(resource: .ypBlack)
         return label
     }()
     
@@ -65,12 +66,12 @@ final class TrackersViewController: UIViewController {
         textField.placeholder = "Поиск"
         textField.backgroundColor = UIColor(hex: "#767680", alpha: 0.12)
         textField.font = .systemFont(ofSize: 17)
-        textField.tintColor = UIColor(named: "YPGray")
+        textField.tintColor = UIColor(resource: .ypGray)
         
         // Иконка лупы слева
         let imageView = UIImageView(image: UIImage(systemName: "magnifyingglass"))
         imageView.contentMode = .center
-        imageView.tintColor = UIColor(named: "YPGray")
+        imageView.tintColor = UIColor(resource: .ypGray)
         
         let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 36, height: 24))
         imageView.frame = CGRect(x: 8, y: 4, width: 16, height: 16)
@@ -95,7 +96,7 @@ final class TrackersViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Что будем отслеживать?"
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.textColor = UIColor(named: "YPBlack")
+        label.textColor = UIColor(resource: .ypBlack)
         label.textAlignment = .center
         return label
     }()

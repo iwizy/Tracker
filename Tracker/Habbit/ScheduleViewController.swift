@@ -40,7 +40,7 @@ final class ScheduleViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Готово", for: .normal)
         button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = UIColor(named: "YPBlack") ?? .black
+        button.backgroundColor = UIColor(resource: .ypBlack)
         button.layer.cornerRadius = 16
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         return button
@@ -50,7 +50,7 @@ final class ScheduleViewController: UIViewController {
     private let backgroundContainerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor(named: "Background")
+        view.backgroundColor = UIColor(resource: .background)
         view.layer.cornerRadius = 16
         return view
     }()

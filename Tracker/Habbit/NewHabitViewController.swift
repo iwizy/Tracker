@@ -367,7 +367,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         let nameIsEmpty = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true
         let hasSchedule = !selectedDays.isEmpty
         createButton.isEnabled = !nameIsEmpty && hasSchedule
-        createButton.backgroundColor = createButton.isEnabled ? UIColor(named: "YPBlack") : UIColor(named: "YPGray")
+        createButton.backgroundColor = createButton.isEnabled ? UIColor(resource: .ypBlack) : UIColor(resource: .ypGray)
     }
 
     @objc private func createTapped() {
