@@ -175,17 +175,17 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     private let emojiLabel: UILabel = {
         let label = UILabel()
         label.text = "Emoji"
-        label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
+        label.font = UIFont.systemFont(ofSize: 19, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private lazy var emojiCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: 52, height: 52)
-        layout.minimumInteritemSpacing = 12
+        layout.minimumInteritemSpacing = 5
         layout.minimumLineSpacing = 12
-        
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 18, bottom: 0, right: 18)
+
         let collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collection.translatesAutoresizingMaskIntoConstraints = false
         collection.backgroundColor = .clear
@@ -199,17 +199,28 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     private let colorLabel: UILabel = {
         let label = UILabel()
         label.text = "Цвет"
-        label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
+        label.font = UIFont.systemFont(ofSize: 19, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private lazy var colorCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: 52, height: 52)
-        layout.minimumInteritemSpacing = 12
-        layout.minimumLineSpacing = 12
+
+        let screenWidth = UIScreen.main.bounds.width
+        let itemsInRow: CGFloat = 6
+        let spacing: CGFloat = 5
+        let sectionInset: CGFloat = 18
+
+        let totalSpacing = (itemsInRow - 1) * spacing + sectionInset * 2
+        let availableWidth = screenWidth - totalSpacing
+        let itemWidth = floor(availableWidth / itemsInRow)
+
         
+        layout.minimumInteritemSpacing = spacing
+        layout.minimumLineSpacing = spacing
+        layout.sectionInset = UIEdgeInsets(top: 0, left: sectionInset, bottom: 0, right: sectionInset)
+
         let collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collection.translatesAutoresizingMaskIntoConstraints = false
         collection.backgroundColor = .clear
@@ -371,19 +382,19 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
             scheduleButton.heightAnchor.constraint(equalToConstant: 75),
 
             emojiLabel.topAnchor.constraint(equalTo: optionsBackgroundView.bottomAnchor, constant: 32),
-            emojiLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            emojiLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
 
-            emojiCollectionView.topAnchor.constraint(equalTo: emojiLabel.bottomAnchor, constant: 8),
-            emojiCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            emojiCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            emojiCollectionView.topAnchor.constraint(equalTo: emojiLabel.bottomAnchor, constant: 24),
+            emojiCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            emojiCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             emojiCollectionView.heightAnchor.constraint(equalToConstant: emojiHeight),
 
-            colorLabel.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor, constant: 32),
-            colorLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            colorLabel.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor, constant: 40),
+            colorLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
 
-            colorCollectionView.topAnchor.constraint(equalTo: colorLabel.bottomAnchor, constant: 8),
-            colorCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            colorCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            colorCollectionView.topAnchor.constraint(equalTo: colorLabel.bottomAnchor, constant: 24),
+            colorCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            colorCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             colorCollectionView.heightAnchor.constraint(equalToConstant: colorHeight),
 
             buttonsStackView.topAnchor.constraint(equalTo: colorCollectionView.bottomAnchor, constant: 40),
@@ -522,7 +533,7 @@ private extension UITextField {
     }
 }
 
-extension NewHabitViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+extension NewHabitViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == emojiCollectionView {
@@ -532,6 +543,17 @@ extension NewHabitViewController: UICollectionViewDataSource, UICollectionViewDe
         }
         return 0
     }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
+                            sizeForItemAt indexPath: IndexPath) -> CGSize {
+            let totalSpacing: CGFloat = 5 * 5 // 5 промежутков по 5pt между 6 ячейками
+            let totalInset: CGFloat = 18 * 2  // отступы слева и справа
+            let totalUsed: CGFloat = totalSpacing + totalInset
+            let availableWidth = collectionView.bounds.width - totalUsed
+            let itemWidth = floor(availableWidth / 6)
+
+            return CGSize(width: itemWidth, height: itemWidth)
+        }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == emojiCollectionView {

@@ -8,31 +8,36 @@
 import UIKit
 
 final class EmojiCell: UICollectionViewCell {
-    private let label: UILabel = {
+    
+    private let emojiLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 32)
-        label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 32)
+        label.textAlignment = .center
         return label
     }()
-
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        contentView.layer.cornerRadius = 16
-        contentView.layer.borderWidth = 1
-        contentView.layer.borderColor = UIColor.systemGray4.cgColor
-        contentView.addSubview(label)
-        NSLayoutConstraint.activate([
-            label.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
-        ])
-    }
+        contentView.addSubview(emojiLabel)
 
+        NSLayoutConstraint.activate([
+            emojiLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            emojiLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+        ])
+
+        // 🔧 Убираем любые рамки/фон
+        contentView.backgroundColor = .clear
+        contentView.layer.borderWidth = 0
+        contentView.layer.borderColor = nil
+        contentView.layer.cornerRadius = 0
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     func configure(with emoji: String) {
-        label.text = emoji
+        emojiLabel.text = emoji
     }
 }
