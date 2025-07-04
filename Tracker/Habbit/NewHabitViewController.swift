@@ -12,6 +12,10 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     
     private var errorBottomConstraint: NSLayoutConstraint?
     private var nameToOptionsConstraint: NSLayoutConstraint?
+    
+    private var emojiHeightConstraint: NSLayoutConstraint?
+    private var colorHeightConstraint: NSLayoutConstraint?
+    
     private var selectedDays: Set<WeekDay> = []
     
     private let emojis = ["🙂", "😻", "🌺", "🐶", "❤️", "😱", "😇", "😡", "🥶", "🤔", "🙌", "🍔", "🥦", "🏓", "🥇", "🎸", "🏝️", "😪"]
@@ -188,6 +192,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         collection.dataSource = self
         collection.delegate = self
         collection.register(EmojiCell.self, forCellWithReuseIdentifier: "EmojiCell")
+        collection.isScrollEnabled = false
         return collection
     }()
     
@@ -211,6 +216,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         collection.dataSource = self
         collection.delegate = self
         collection.register(ColorCell.self, forCellWithReuseIdentifier: "ColorCell")
+        collection.isScrollEnabled = false
         return collection
     }()
     
@@ -236,6 +242,12 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         return button
     }()
     
+    private let contentView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -243,6 +255,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         setupConstraints()
         setupActions()
         nameTextField.delegate = self
+        scrollView.alwaysBounceVertical = true
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
         view.addGestureRecognizer(tapGesture)
@@ -262,108 +275,127 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     
     private func setupViews() {
         view.addSubview(scrollView)
-        scrollView.addSubview(titleLabel)
-        scrollView.addSubview(nameFieldStack)
+        scrollView.addSubview(contentView)
+        scrollView.keyboardDismissMode = .interactive
+
+        view.addSubview(titleLabel) // 🔧 теперь titleLabel вне scrollView (🆕)
+
+        // ❌ Удалено: теперь titleLabel не внутри scrollView
+        // contentView.addSubview(titleLabel)
+
+        contentView.addSubview(nameFieldStack)
         nameFieldStack.addArrangedSubview(nameTextField)
         nameFieldStack.addArrangedSubview(errorLabel)
-        scrollView.addSubview(optionsBackgroundView)
-        scrollView.addSubview(buttonsStackView)
-        
-        buttonsStackView.addArrangedSubview(cancelButton)
-        buttonsStackView.addArrangedSubview(createButton)
-        
+
+        contentView.addSubview(optionsBackgroundView)
         optionsBackgroundView.addSubview(categoryArrow)
         optionsBackgroundView.addSubview(categoryButton)
         categoryStackView.addArrangedSubview(categoryLabel)
         categoryStackView.addArrangedSubview(categoryValueLabel)
         optionsBackgroundView.addSubview(categoryStackView)
         optionsBackgroundView.addSubview(separator)
-        
         scheduleStackView.addArrangedSubview(scheduleLabel)
         scheduleStackView.addArrangedSubview(scheduleValueLabel)
         optionsBackgroundView.addSubview(scheduleStackView)
         optionsBackgroundView.addSubview(scheduleArrow)
         optionsBackgroundView.addSubview(scheduleButton)
-        scrollView.addSubview(emojiLabel)
-        scrollView.addSubview(emojiCollectionView)
-        scrollView.addSubview(colorLabel)
-        scrollView.addSubview(colorCollectionView)
+
+        contentView.addSubview(emojiLabel)
+        contentView.addSubview(emojiCollectionView)
+        contentView.addSubview(colorLabel)
+        contentView.addSubview(colorCollectionView)
+
+        contentView.addSubview(buttonsStackView)
+        buttonsStackView.addArrangedSubview(cancelButton)
+        buttonsStackView.addArrangedSubview(createButton)
     }
     
     private func setupConstraints() {
+        let emojiRows = ceil(Double(emojis.count) / 6.0)
+        let colorRows = ceil(Double(colorNames.count) / 6.0)
+        let itemHeight: CGFloat = 52
+        let spacing: CGFloat = 12
+        let emojiHeight = (itemHeight * CGFloat(emojiRows)) + (spacing * (CGFloat(emojiRows) - 1))
+        let colorHeight = (itemHeight * CGFloat(colorRows)) + (spacing * (CGFloat(colorRows) - 1))
+
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            
-            titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 27),
+
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 27),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            
-            nameFieldStack.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 38),
-            nameFieldStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            nameFieldStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+
+            nameFieldStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 38), 
+            nameFieldStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            nameFieldStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             nameTextField.heightAnchor.constraint(equalToConstant: 75),
-            
+
             optionsBackgroundView.leadingAnchor.constraint(equalTo: nameTextField.leadingAnchor),
             optionsBackgroundView.trailingAnchor.constraint(equalTo: nameTextField.trailingAnchor),
+            optionsBackgroundView.topAnchor.constraint(equalTo: nameFieldStack.bottomAnchor, constant: 24),
             optionsBackgroundView.heightAnchor.constraint(equalToConstant: 150),
-            
+
             categoryStackView.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor, constant: 16),
             categoryStackView.centerYAnchor.constraint(equalTo: categoryButton.centerYAnchor),
-            
+
             categoryArrow.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor, constant: -16),
             categoryArrow.centerYAnchor.constraint(equalTo: categoryButton.centerYAnchor),
-            
+
             categoryButton.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor),
             categoryButton.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor),
             categoryButton.topAnchor.constraint(equalTo: optionsBackgroundView.topAnchor),
             categoryButton.heightAnchor.constraint(equalToConstant: 75),
-            
+
             separator.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor, constant: 16),
             separator.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor, constant: -16),
             separator.topAnchor.constraint(equalTo: categoryButton.bottomAnchor),
             separator.heightAnchor.constraint(equalToConstant: 1.0 / UIScreen.main.scale),
-            
+
             scheduleStackView.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor, constant: 16),
             scheduleStackView.centerYAnchor.constraint(equalTo: scheduleButton.centerYAnchor),
-            
+
             scheduleArrow.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor, constant: -16),
             scheduleArrow.centerYAnchor.constraint(equalTo: scheduleButton.centerYAnchor),
-            
+
             scheduleButton.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor),
             scheduleButton.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor),
             scheduleButton.bottomAnchor.constraint(equalTo: optionsBackgroundView.bottomAnchor),
             scheduleButton.heightAnchor.constraint(equalToConstant: 75),
-            
-            // ✳️ добавлено: emoji label
+
             emojiLabel.topAnchor.constraint(equalTo: optionsBackgroundView.bottomAnchor, constant: 32),
-            emojiLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            
-            // ✳️ добавлено: emoji collection
+            emojiLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+
             emojiCollectionView.topAnchor.constraint(equalTo: emojiLabel.bottomAnchor, constant: 8),
-            emojiCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            emojiCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            emojiCollectionView.heightAnchor.constraint(equalToConstant: 120),
-            
-            // ✳️ добавлено: color label
+            emojiCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            emojiCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            emojiCollectionView.heightAnchor.constraint(equalToConstant: emojiHeight),
+
             colorLabel.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor, constant: 32),
-            colorLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            
+            colorLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+
             colorCollectionView.topAnchor.constraint(equalTo: colorLabel.bottomAnchor, constant: 8),
-            colorCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            colorCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            colorCollectionView.heightAnchor.constraint(equalToConstant: 120),
-            
-            buttonsStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            buttonsStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            buttonsStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            colorCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            colorCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            colorCollectionView.heightAnchor.constraint(equalToConstant: colorHeight),
+
+            buttonsStackView.topAnchor.constraint(equalTo: colorCollectionView.bottomAnchor, constant: 40),
+            buttonsStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            buttonsStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            buttonsStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
             buttonsStackView.heightAnchor.constraint(equalToConstant: 60)
         ])
-        
+
         errorBottomConstraint = optionsBackgroundView.topAnchor.constraint(equalTo: errorLabel.bottomAnchor, constant: 32)
-        nameToOptionsConstraint = optionsBackgroundView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 24)
-        
+        nameToOptionsConstraint = optionsBackgroundView.topAnchor.constraint(equalTo: nameFieldStack.bottomAnchor, constant: 24)
+
         nameToOptionsConstraint?.isActive = true
         errorBottomConstraint?.isActive = false
     }
