@@ -56,7 +56,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         label.font = .systemFont(ofSize: 17)
         label.textAlignment = .center
         label.alpha = 0
-        label.isHidden = false
+        label.isHidden = true
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -333,7 +333,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 27),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 
-            nameFieldStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 38), 
+            nameFieldStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 38),
             nameFieldStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             nameFieldStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             nameTextField.heightAnchor.constraint(equalToConstant: 75),
@@ -441,10 +441,18 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         let trimmedText = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let isAtLimit = trimmedText.count >= 38
         
+        if isAtLimit {
+            errorLabel.isHidden = false
+            errorBottomConstraint?.isActive = true
+            nameToOptionsConstraint?.isActive = false
+        } else {
+            errorLabel.isHidden = true
+            errorBottomConstraint?.isActive = false
+            nameToOptionsConstraint?.isActive = true
+        }
+
         UIView.animate(withDuration: 0.25) {
             self.errorLabel.alpha = isAtLimit ? 1 : 0
-            self.errorBottomConstraint?.isActive = isAtLimit
-            self.nameToOptionsConstraint?.isActive = !isAtLimit
             self.view.layoutIfNeeded()
         }
     }
