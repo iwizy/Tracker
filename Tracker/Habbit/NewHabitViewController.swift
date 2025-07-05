@@ -18,6 +18,9 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     
     private var selectedDays: Set<WeekDay> = []
     
+    private var selectedEmojiIndex: IndexPath?
+    private var selectedColorIndex: IndexPath?
+    
     private let emojis = ["🙂", "😻", "🌺", "🐶", "❤️", "😱", "😇", "😡", "🥶", "🤔", "🙌", "🍔", "🥦", "🏓", "🥇", "🎸", "🏝️", "😪"]
     private let colorNames = (1...18).map { "ColorSection\($0)" }
     
@@ -184,7 +187,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         let layout = UICollectionViewFlowLayout()
         layout.minimumInteritemSpacing = 5
         layout.minimumLineSpacing = 12
-        layout.sectionInset = UIEdgeInsets(top: 0, left: 18, bottom: 0, right: 18)
+        layout.sectionInset = UIEdgeInsets(top: 16, left: 18, bottom: 16, right: 18)
         
         let collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collection.translatesAutoresizingMaskIntoConstraints = false
@@ -193,6 +196,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         collection.delegate = self
         collection.register(EmojiCell.self, forCellWithReuseIdentifier: "EmojiCell")
         collection.isScrollEnabled = false
+        
         return collection
     }()
     
@@ -270,6 +274,11 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
         view.addGestureRecognizer(tapGesture)
+    
+        let passThroughTap = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
+        passThroughTap.cancelsTouchesInView = false
+        view.addGestureRecognizer(passThroughTap)
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -319,12 +328,20 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     }
     
     private func setupConstraints() {
-        let emojiRows = ceil(Double(emojis.count) / 6.0)
-        let colorRows = ceil(Double(colorNames.count) / 6.0)
-        let itemHeight: CGFloat = 52
-        let spacing: CGFloat = 12
-        let emojiHeight = (itemHeight * CGFloat(emojiRows)) + (spacing * (CGFloat(emojiRows) - 1))
-        let colorHeight = (itemHeight * CGFloat(colorRows)) + (spacing * (CGFloat(colorRows) - 1))
+        let emojisPerRow: CGFloat = 6
+        let emojiItemSize: CGFloat = 52
+        let emojiSpacing: CGFloat = 12
+        let emojiSectionInset: CGFloat = 16
+
+        let emojiRows = ceil(CGFloat(emojis.count) / emojisPerRow)
+        let emojiHeight = (emojiRows * emojiItemSize)
+                        + (emojiSpacing * (emojiRows - 1))
+                        + (emojiSectionInset * 2)
+
+        let colorRows = ceil(CGFloat(colorNames.count) / emojisPerRow)
+        let colorHeight = (colorRows * emojiItemSize)
+                        + (emojiSpacing * (colorRows - 1))
+                        + (emojiSectionInset * 2)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
@@ -554,16 +571,49 @@ extension NewHabitViewController: UICollectionViewDataSource, UICollectionViewDe
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == emojiCollectionView {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiCell", for: indexPath) as! EmojiCell
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiCell", for: indexPath) as? EmojiCell else {
+                assertionFailure("Failed to dequeue EmojiCell")
+                return UICollectionViewCell()
+            }
+
             let emoji = emojis[indexPath.item]
             cell.configure(with: emoji)
+
+            let isSelected = indexPath == selectedEmojiIndex
+            cell.setSelected(isSelected)
+
             return cell
+
         } else if collectionView == colorCollectionView {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ColorCell", for: indexPath) as! ColorCell
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ColorCell", for: indexPath) as? ColorCell else {
+                assertionFailure("Failed to dequeue ColorCell")
+                return UICollectionViewCell()
+            }
+
             let colorName = colorNames[indexPath.item]
-            cell.configure(with: UIColor(named: colorName) ?? .gray)
+            let color = UIColor(named: colorName) ?? .gray
+            cell.configure(with: color)
+
+            let isSelected = indexPath == selectedColorIndex
+            cell.setSelected(isSelected)
+
             return cell
         }
+
         return UICollectionViewCell()
     }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if collectionView == emojiCollectionView {
+            print("✅ Emoji selected at index: \(indexPath.item)")
+            selectedEmojiIndex = indexPath
+            collectionView.reloadData()
+        } else if collectionView == colorCollectionView {
+            print("🎨 Color selected at index: \(indexPath.item)")
+            selectedColorIndex = indexPath
+            collectionView.reloadData()
+        }
+    }
+    
 }
