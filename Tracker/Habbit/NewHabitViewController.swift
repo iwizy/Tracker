@@ -49,6 +49,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         textField.font = UIFont.systemFont(ofSize: 17)
         textField.clearButtonMode = .whileEditing
         textField.setLeftPaddingPoints(16)
+        textField.returnKeyType = .done
         return textField
     }()
     
@@ -500,14 +501,18 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         view.endEditing(true)
     }
     
-    private func updateCreateButtonState() {
+    private func canCreateTracker() -> Bool {
         let nameIsEmpty = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true
         let hasSchedule = !selectedDays.isEmpty
-        _ = selectedEmojiIndex != nil
-        _ = selectedColorIndex != nil
-        
-        createButton.isEnabled = !nameIsEmpty && hasSchedule
-        createButton.backgroundColor = createButton.isEnabled ? UIColor(resource: .ypBlack) : UIColor(resource: .ypGray)
+        let hasEmoji = selectedEmojiIndex != nil
+        let hasColor = selectedColorIndex != nil
+        return !nameIsEmpty && hasSchedule && hasEmoji && hasColor
+    }
+    
+    private func updateCreateButtonState() {
+        let enabled = canCreateTracker()
+        createButton.isEnabled = enabled
+        createButton.backgroundColor = enabled ? UIColor(resource: .ypBlack) : UIColor(resource: .ypGray)
     }
     
     @objc private func createTapped() {
@@ -543,7 +548,11 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
+        if canCreateTracker() {
+            createTapped()
+        } else {
+            textField.resignFirstResponder()
+        }
         return true
     }
 }
