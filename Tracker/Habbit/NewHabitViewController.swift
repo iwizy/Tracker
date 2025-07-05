@@ -185,7 +185,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         layout.minimumInteritemSpacing = 5
         layout.minimumLineSpacing = 12
         layout.sectionInset = UIEdgeInsets(top: 0, left: 18, bottom: 0, right: 18)
-
+        
         let collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collection.translatesAutoresizingMaskIntoConstraints = false
         collection.backgroundColor = .clear
@@ -206,21 +206,21 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     
     private lazy var colorCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-
+        
         let screenWidth = UIScreen.main.bounds.width
         let itemsInRow: CGFloat = 6
         let spacing: CGFloat = 5
         let sectionInset: CGFloat = 18
-
+        
         let totalSpacing = (itemsInRow - 1) * spacing + sectionInset * 2
         let availableWidth = screenWidth - totalSpacing
         let itemWidth = floor(availableWidth / itemsInRow)
-
+        
         
         layout.minimumInteritemSpacing = spacing
         layout.minimumLineSpacing = spacing
         layout.sectionInset = UIEdgeInsets(top: 0, left: sectionInset, bottom: 0, right: sectionInset)
-
+        
         let collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collection.translatesAutoresizingMaskIntoConstraints = false
         collection.backgroundColor = .clear
@@ -288,16 +288,13 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         scrollView.keyboardDismissMode = .interactive
-
-        view.addSubview(titleLabel) // 🔧 теперь titleLabel вне scrollView (🆕)
-
-        // ❌ Удалено: теперь titleLabel не внутри scrollView
-        // contentView.addSubview(titleLabel)
-
+        
+        view.addSubview(titleLabel)
+        
         contentView.addSubview(nameFieldStack)
         nameFieldStack.addArrangedSubview(nameTextField)
         nameFieldStack.addArrangedSubview(errorLabel)
-
+        
         contentView.addSubview(optionsBackgroundView)
         optionsBackgroundView.addSubview(categoryArrow)
         optionsBackgroundView.addSubview(categoryButton)
@@ -310,12 +307,12 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         optionsBackgroundView.addSubview(scheduleStackView)
         optionsBackgroundView.addSubview(scheduleArrow)
         optionsBackgroundView.addSubview(scheduleButton)
-
+        
         contentView.addSubview(emojiLabel)
         contentView.addSubview(emojiCollectionView)
         contentView.addSubview(colorLabel)
         contentView.addSubview(colorCollectionView)
-
+        
         contentView.addSubview(buttonsStackView)
         buttonsStackView.addArrangedSubview(cancelButton)
         buttonsStackView.addArrangedSubview(createButton)
@@ -328,85 +325,85 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         let spacing: CGFloat = 12
         let emojiHeight = (itemHeight * CGFloat(emojiRows)) + (spacing * (CGFloat(emojiRows) - 1))
         let colorHeight = (itemHeight * CGFloat(colorRows)) + (spacing * (CGFloat(colorRows) - 1))
-
+        
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-
+            
             contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-
+            
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 27),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-
+            
             nameFieldStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 38),
             nameFieldStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             nameFieldStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             nameTextField.heightAnchor.constraint(equalToConstant: 75),
-
+            
             optionsBackgroundView.leadingAnchor.constraint(equalTo: nameTextField.leadingAnchor),
             optionsBackgroundView.trailingAnchor.constraint(equalTo: nameTextField.trailingAnchor),
             optionsBackgroundView.topAnchor.constraint(equalTo: nameFieldStack.bottomAnchor, constant: 24),
             optionsBackgroundView.heightAnchor.constraint(equalToConstant: 150),
-
+            
             categoryStackView.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor, constant: 16),
             categoryStackView.centerYAnchor.constraint(equalTo: categoryButton.centerYAnchor),
-
+            
             categoryArrow.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor, constant: -16),
             categoryArrow.centerYAnchor.constraint(equalTo: categoryButton.centerYAnchor),
-
+            
             categoryButton.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor),
             categoryButton.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor),
             categoryButton.topAnchor.constraint(equalTo: optionsBackgroundView.topAnchor),
             categoryButton.heightAnchor.constraint(equalToConstant: 75),
-
+            
             separator.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor, constant: 16),
             separator.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor, constant: -16),
             separator.topAnchor.constraint(equalTo: categoryButton.bottomAnchor),
             separator.heightAnchor.constraint(equalToConstant: 1.0 / UIScreen.main.scale),
-
+            
             scheduleStackView.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor, constant: 16),
             scheduleStackView.centerYAnchor.constraint(equalTo: scheduleButton.centerYAnchor),
-
+            
             scheduleArrow.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor, constant: -16),
             scheduleArrow.centerYAnchor.constraint(equalTo: scheduleButton.centerYAnchor),
-
+            
             scheduleButton.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor),
             scheduleButton.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor),
             scheduleButton.bottomAnchor.constraint(equalTo: optionsBackgroundView.bottomAnchor),
             scheduleButton.heightAnchor.constraint(equalToConstant: 75),
-
+            
             emojiLabel.topAnchor.constraint(equalTo: optionsBackgroundView.bottomAnchor, constant: 32),
             emojiLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
-
+            
             emojiCollectionView.topAnchor.constraint(equalTo: emojiLabel.bottomAnchor, constant: 24),
             emojiCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             emojiCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             emojiCollectionView.heightAnchor.constraint(equalToConstant: emojiHeight),
-
+            
             colorLabel.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor, constant: 40),
             colorLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
-
+            
             colorCollectionView.topAnchor.constraint(equalTo: colorLabel.bottomAnchor, constant: 24),
             colorCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             colorCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             colorCollectionView.heightAnchor.constraint(equalToConstant: colorHeight),
-
+            
             buttonsStackView.topAnchor.constraint(equalTo: colorCollectionView.bottomAnchor, constant: 40),
             buttonsStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             buttonsStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             buttonsStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
             buttonsStackView.heightAnchor.constraint(equalToConstant: 60)
         ])
-
+        
         errorBottomConstraint = optionsBackgroundView.topAnchor.constraint(equalTo: errorLabel.bottomAnchor, constant: 32)
         nameToOptionsConstraint = optionsBackgroundView.topAnchor.constraint(equalTo: nameFieldStack.bottomAnchor, constant: 24)
-
+        
         nameToOptionsConstraint?.isActive = true
         errorBottomConstraint?.isActive = false
     }
@@ -461,7 +458,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
             errorBottomConstraint?.isActive = false
             nameToOptionsConstraint?.isActive = true
         }
-
+        
         UIView.animate(withDuration: 0.25) {
             self.errorLabel.alpha = isAtLimit ? 1 : 0
             self.view.layoutIfNeeded()
@@ -545,15 +542,15 @@ extension NewHabitViewController: UICollectionViewDataSource, UICollectionViewDe
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
-                            sizeForItemAt indexPath: IndexPath) -> CGSize {
-            let totalSpacing: CGFloat = 5 * 5 // 5 промежутков по 5pt между 6 ячейками
-            let totalInset: CGFloat = 18 * 2  // отступы слева и справа
-            let totalUsed: CGFloat = totalSpacing + totalInset
-            let availableWidth = collectionView.bounds.width - totalUsed
-            let itemWidth = floor(availableWidth / 6)
-
-            return CGSize(width: itemWidth, height: itemWidth)
-        }
+                        sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let totalSpacing: CGFloat = 5 * 5
+        let totalInset: CGFloat = 18 * 2
+        let totalUsed: CGFloat = totalSpacing + totalInset
+        let availableWidth = collectionView.bounds.width - totalUsed
+        let itemWidth = floor(availableWidth / 6)
+        
+        return CGSize(width: itemWidth, height: itemWidth)
+    }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == emojiCollectionView {

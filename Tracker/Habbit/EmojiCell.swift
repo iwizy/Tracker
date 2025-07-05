@@ -26,7 +26,6 @@ final class EmojiCell: UICollectionViewCell {
             emojiLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
 
-        // 🔧 Убираем любые рамки/фон
         contentView.backgroundColor = .clear
         contentView.layer.borderWidth = 0
         contentView.layer.borderColor = nil
