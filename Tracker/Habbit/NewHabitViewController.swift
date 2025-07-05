@@ -274,7 +274,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
         view.addGestureRecognizer(tapGesture)
-    
+        
         let passThroughTap = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
         passThroughTap.cancelsTouchesInView = false
         view.addGestureRecognizer(passThroughTap)
@@ -332,16 +332,16 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         let emojiItemSize: CGFloat = 52
         let emojiSpacing: CGFloat = 12
         let emojiSectionInset: CGFloat = 16
-
+        
         let emojiRows = ceil(CGFloat(emojis.count) / emojisPerRow)
         let emojiHeight = (emojiRows * emojiItemSize)
-                        + (emojiSpacing * (emojiRows - 1))
-                        + (emojiSectionInset * 2)
-
+        + (emojiSpacing * (emojiRows - 1))
+        + (emojiSectionInset * 2)
+        
         let colorRows = ceil(CGFloat(colorNames.count) / emojisPerRow)
         let colorHeight = (colorRows * emojiItemSize)
-                        + (emojiSpacing * (colorRows - 1))
-                        + (emojiSectionInset * 2)
+        + (emojiSpacing * (colorRows - 1))
+        + (emojiSectionInset * 2)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
@@ -503,6 +503,9 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     private func updateCreateButtonState() {
         let nameIsEmpty = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true
         let hasSchedule = !selectedDays.isEmpty
+        _ = selectedEmojiIndex != nil
+        _ = selectedColorIndex != nil
+        
         createButton.isEnabled = !nameIsEmpty && hasSchedule
         createButton.backgroundColor = createButton.isEnabled ? UIColor(resource: .ypBlack) : UIColor(resource: .ypGray)
     }
@@ -510,17 +513,23 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     @objc private func createTapped() {
         guard let name = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
               !name.isEmpty,
-              !selectedDays.isEmpty else {
+              !selectedDays.isEmpty,
+              let emojiIndex = selectedEmojiIndex?.item,
+              let colorIndex = selectedColorIndex?.item else {
             return
         }
+        
+        let emoji = emojis[emojiIndex]
+        let color = colorNames[colorIndex]
         
         let tracker = Tracker(
             id: UUID(),
             name: name,
-            color: "ColorSection15",
-            emoji: "🐱",
+            color: color,
+            emoji: emoji,
             schedule: selectedDays.map { $0.rawValue }
         )
+        
         onCreateTracker?(tracker)
         dismiss(animated: true)
     }
@@ -575,31 +584,31 @@ extension NewHabitViewController: UICollectionViewDataSource, UICollectionViewDe
                 assertionFailure("Failed to dequeue EmojiCell")
                 return UICollectionViewCell()
             }
-
+            
             let emoji = emojis[indexPath.item]
             cell.configure(with: emoji)
-
+            
             let isSelected = indexPath == selectedEmojiIndex
             cell.setSelected(isSelected)
-
+            
             return cell
-
+            
         } else if collectionView == colorCollectionView {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ColorCell", for: indexPath) as? ColorCell else {
                 assertionFailure("Failed to dequeue ColorCell")
                 return UICollectionViewCell()
             }
-
+            
             let colorName = colorNames[indexPath.item]
             let color = UIColor(named: colorName) ?? .gray
             cell.configure(with: color)
-
+            
             let isSelected = indexPath == selectedColorIndex
             cell.setSelected(isSelected)
-
+            
             return cell
         }
-
+        
         return UICollectionViewCell()
     }
     
@@ -609,10 +618,12 @@ extension NewHabitViewController: UICollectionViewDataSource, UICollectionViewDe
             print("✅ Emoji selected at index: \(indexPath.item)")
             selectedEmojiIndex = indexPath
             collectionView.reloadData()
+            updateCreateButtonState()
         } else if collectionView == colorCollectionView {
             print("🎨 Color selected at index: \(indexPath.item)")
             selectedColorIndex = indexPath
             collectionView.reloadData()
+            updateCreateButtonState()
         }
     }
     
