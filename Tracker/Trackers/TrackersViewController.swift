@@ -14,6 +14,10 @@ final class TrackersViewController: UIViewController {
     ]
     
     private let trackerStore = TrackerStore(context: (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext)
+    private let trackerRecordStore = TrackerRecordStore(
+        context: (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    )
+    
     
     /// Массив завершённых трекеров с датами
     var completedTrackers: [TrackerRecord] = []
@@ -133,6 +137,8 @@ final class TrackersViewController: UIViewController {
         setupNavigationBar()
         setupViews()
         setupConstraints()
+        
+        completedTrackers = trackerRecordStore.getAllRecords()
         
         // Настройка делегатов и регистрация ячеек
         collectionView.dataSource = self
@@ -288,11 +294,14 @@ extension TrackersViewController: UICollectionViewDataSource {
             }
             
             if isCompleted {
+                self.trackerRecordStore.deleteRecord(trackerId: tracker.id, date: self.selectedDate)
                 self.completedTrackers.removeAll {
                     $0.trackerId == tracker.id && calendar.isDate($0.date, inSameDayAs: self.selectedDate)
                 }
             } else {
-                self.completedTrackers.append(TrackerRecord(trackerId: tracker.id, date: self.selectedDate))
+                let newRecord = TrackerRecord(trackerId: tracker.id, date: self.selectedDate)
+                self.trackerRecordStore.addRecord(newRecord)
+                self.completedTrackers.append(newRecord)
             }
             
             collectionView.reloadItems(at: [indexPath])
