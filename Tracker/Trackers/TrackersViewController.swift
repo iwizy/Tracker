@@ -13,6 +13,8 @@ final class TrackersViewController: UIViewController {
         TrackerCategory(title: "Привычки", trackers: [])
     ]
     
+    private let trackerStore = TrackerStore(context: (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext)
+    
     /// Массив завершённых трекеров с датами
     var completedTrackers: [TrackerRecord] = []
     
@@ -203,12 +205,20 @@ final class TrackersViewController: UIViewController {
         let weekday = calendar.component(.weekday, from: date)
         let weekdayEnum = WeekDay.allCases[(weekday + 5) % 7]
         let weekdaySymbol = weekdayEnum.rawValue
-        
-        filteredCategories = categories.map { category in
-            let trackers = category.trackers.filter { $0.schedule.contains(weekdaySymbol) }
-            return TrackerCategory(title: category.title, trackers: trackers)
-        }.filter { !$0.trackers.isEmpty }
-        
+
+        // Получаем все трекеры из Core Data
+        let allTrackers = trackerStore.getTrackers()
+
+        // Фильтруем по дню недели
+        let visibleTrackers = allTrackers.filter {
+            $0.schedule.contains(weekdaySymbol)
+        }
+
+        // Оборачиваем отфильтрованные трекеры в одну моковую категорию "Привычки"
+        filteredCategories = visibleTrackers.isEmpty ? [] : [
+            TrackerCategory(title: "Привычки", trackers: visibleTrackers)
+        ]
+
         collectionView.reloadData()
         emptyPlaceholderStack.isHidden = !filteredCategories.isEmpty
     }
@@ -224,22 +234,17 @@ final class TrackersViewController: UIViewController {
     @objc private func addTrackerButtonTapped() {
         let vc = NewHabitViewController()
         vc.modalPresentationStyle = .automatic
+
         vc.onCreateTracker = { [weak self] tracker in
             guard let self else { return }
-            
-            if let index = self.categories.firstIndex(where: { $0.title == "Привычки" }) {
-                let existing = self.categories[index]
-                let updatedCategory = TrackerCategory(
-                    title: existing.title,
-                    trackers: existing.trackers + [tracker]
-                )
-                self.categories[index] = updatedCategory
-            } else {
-                self.categories.append(TrackerCategory(title: "Привычки", trackers: [tracker]))
-            }
-            
+
+            // Сохраняем в Core Data
+            print("[TrackersViewController.addTrackerButtonTapped]: Сохраняем трекер в Core Data")
+            self.trackerStore.addTracker(tracker)
+
             self.filterTrackers(for: self.selectedDate)
         }
+
         present(vc, animated: true)
     }
 }
