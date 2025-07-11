@@ -48,7 +48,6 @@ final class TrackerRecordStore {
         do {
             let result = try context.fetch(request)
             return result.compactMap { record in
-                // ✅ Поле trackerId — это UUID, используем напрямую
                 guard
                     let trackerId = record.trackerId,
                     let date = record.date
