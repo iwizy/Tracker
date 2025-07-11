@@ -13,10 +13,20 @@ final class TrackersViewController: UIViewController {
         TrackerCategory(title: "Привычки", trackers: [])
     ]
     
-    private let trackerStore = TrackerStore(context: (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext)
-    private let trackerRecordStore = TrackerRecordStore(
-        context: (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-    )
+    private lazy var trackerStore: TrackerStore = {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            fatalError("❌ Unable to cast UIApplicationDelegate to AppDelegate")
+        }
+        return TrackerStore(context: appDelegate.persistentContainer.viewContext)
+    }()
+
+    private lazy var trackerRecordStore: TrackerRecordStore = {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            fatalError("❌ Unable to cast UIApplicationDelegate to AppDelegate")
+        }
+        return TrackerRecordStore(context: appDelegate.persistentContainer.viewContext)
+    }()
+
     
     
     /// Массив завершённых трекеров с датами
