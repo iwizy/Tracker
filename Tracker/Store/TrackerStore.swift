@@ -98,6 +98,8 @@ final class TrackerStore: NSObject {
 
     /// Сохраняет контекст Core Data
     private func saveContext() {
+        assert(context.persistentStoreCoordinator?.persistentStores.isEmpty == false,
+               "❌ Контекст не привязан к persistent store!")
         do {
             try context.save()
         } catch {
