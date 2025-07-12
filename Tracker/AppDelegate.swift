@@ -24,15 +24,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     var isCoreDataReady = false
+    lazy var trackerStore: TrackerStore? = nil
 
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "Tracker")
+        print("loadPersistentStores: Начало загрузки")
         container.loadPersistentStores { storeDescription, error in
             if let error = error as NSError? {
+                print("❌ Ошибка загрузки persistent store: \(error.localizedDescription)")
                 print("Не удалось загрузить CoreData: \(error), \(error.userInfo)")
             } else {
                 self.isCoreDataReady = true
-                print("Хранилище загружено")
+                self.trackerStore = TrackerStore(context: container.viewContext)
+                print("Persistent store загружен. TrackerStore готов")
             }
         }
         return container

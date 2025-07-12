@@ -83,7 +83,12 @@ final class TrackerStore: NSObject {
                 return nil
             }
 
-            _ = rawSchedule.compactMap { WeekDay(rawValue: $0) }
+            let validSchedule = rawSchedule.compactMap { WeekDay(rawValue: $0) }
+            guard validSchedule.count == rawSchedule.count else {
+                print("Некорректные значения расписания в Core Data для трекера \(trackerCD.name ?? "без имени")")
+                return nil
+            }
+
 
             return Tracker(
                 id: id,
@@ -98,11 +103,12 @@ final class TrackerStore: NSObject {
     /// Сохраняет контекст Core Data
     private func saveContext() {
         assert(context.persistentStoreCoordinator?.persistentStores.isEmpty == false,
-               "❌ Контекст не привязан к persistent store!")
+               "Контекст не привязан к persistent store!")
         do {
             try context.save()
+            print("Контекст успешно сохранён")
         } catch {
-            print("❌ Ошибка сохранения контекста: \(error)")
+            print("Ошибка сохранения контекста: \(error)")
         }
     }
 }

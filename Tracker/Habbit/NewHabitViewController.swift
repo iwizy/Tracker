@@ -533,7 +533,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
             emoji: emoji,
             schedule: selectedDays.map { $0.rawValue }
         )
-        
+        print("Создание трекера: \(tracker.name), передаём в onCreateTracker")
         onCreateTracker?(tracker)
         dismiss(animated: true)
     }

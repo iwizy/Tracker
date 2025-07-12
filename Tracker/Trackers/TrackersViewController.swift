@@ -13,15 +13,18 @@ final class TrackersViewController: UIViewController {
         TrackerCategory(title: "Привычки", trackers: [])
     ]
     
-    private lazy var trackerStore: TrackerStore = {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            fatalError("❌ Unable to cast UIApplicationDelegate to AppDelegate")
+    private var trackerStore: TrackerStore? {
+        guard
+            let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+            let trackerStore = appDelegate.trackerStore
+        else {
+            print("TrackerStore ещё не готов! Core Data store не загружен.")
+            return nil
         }
-        guard appDelegate.isCoreDataReady else {
-            fatalError("❌ Core Data store is not ready yet")
-        }
-        return TrackerStore(context: appDelegate.persistentContainer.viewContext)
-    }()
+
+        print("TrackerStore успешно получен из AppDelegate")
+        return trackerStore
+    }
 
     private lazy var trackerRecordStore: TrackerRecordStore = {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
@@ -226,7 +229,13 @@ final class TrackersViewController: UIViewController {
         let weekdaySymbol = weekdayEnum.rawValue
 
         // Получаем все трекеры из Core Data
-        let allTrackers = trackerStore.getTrackers()
+        guard let allTrackers = trackerStore?.getTrackers() else {
+            print("Не удалось получить трекеры — store не готов")
+            filteredCategories = []
+            collectionView.reloadData()
+            emptyPlaceholderStack.isHidden = false
+            return
+        }
 
         // Фильтруем по дню недели
         let visibleTrackers = allTrackers.filter {
@@ -257,7 +266,14 @@ final class TrackersViewController: UIViewController {
         vc.onCreateTracker = { [weak self] tracker in
             guard let self else { return }
 
-            self.trackerStore.addTracker(tracker)
+            guard let store = self.trackerStore else {
+                print("trackerStore is nil — пропускаем сохранение трекера: \(tracker.name)")
+                return
+            }
+
+            store.addTracker(tracker)
+            print("Трекер сохранён: \(tracker.name)")
+
             self.filterTrackers(for: self.selectedDate)
         }
 
