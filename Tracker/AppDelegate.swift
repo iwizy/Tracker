@@ -32,14 +32,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
     
+    var isCoreDataReady = false  // 🆕 флаг, указывающий, что загрузка завершена
+
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "Tracker")
-        container.loadPersistentStores(completionHandler: { storeDescription, error in
+        container.loadPersistentStores { storeDescription, error in
             if let error = error as NSError? {
                 print("Не удалось загрузить CoreData: \(error), \(error.userInfo)")
+            } else {
+                self.isCoreDataReady = true
+                print("Хранилище загружено")
             }
-        })
-        print("Хранилище загружено")
+        }
         return container
     }()
 

@@ -17,6 +17,9 @@ final class TrackersViewController: UIViewController {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             fatalError("❌ Unable to cast UIApplicationDelegate to AppDelegate")
         }
+        guard appDelegate.isCoreDataReady else {
+            fatalError("❌ Core Data store is not ready yet")
+        }
         return TrackerStore(context: appDelegate.persistentContainer.viewContext)
     }()
 
