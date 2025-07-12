@@ -257,10 +257,7 @@ final class TrackersViewController: UIViewController {
         vc.onCreateTracker = { [weak self] tracker in
             guard let self else { return }
 
-            // Сохраняем в Core Data
-            print("[TrackersViewController.addTrackerButtonTapped]: Сохраняем трекер в Core Data")
             self.trackerStore.addTracker(tracker)
-
             self.filterTrackers(for: self.selectedDate)
         }
 

@@ -58,13 +58,12 @@ final class TrackerStore: NSObject {
         trackerCD.color = tracker.color
         trackerCD.emoji = tracker.emoji
         trackerCD.schedule = tracker.schedule as NSArray
-        print("[TrackerStore.addTracker]: Вызван метод добавления нового трекера")
         saveContext()
     }
 
     /// Возвращает актуальный список трекеров
     func getTrackers() -> [Tracker] {
-        return trackers
+        trackers
     }
 
     // MARK: - Private Methods
@@ -113,6 +112,5 @@ final class TrackerStore: NSObject {
 extension TrackerStore: NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         updateTrackers()
-        // Здесь в будущем можно вызвать делегат или callback для UI
     }
 }

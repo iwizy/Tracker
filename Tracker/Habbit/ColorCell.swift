@@ -9,7 +9,7 @@ import UIKit
 
 final class ColorCell: UICollectionViewCell {
     
-    private let colorView: UIView = {
+    private lazy var colorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 8
@@ -17,7 +17,7 @@ final class ColorCell: UICollectionViewCell {
         return view
     }()
     
-    private let selectionBorderView: UIView = {
+    private lazy var selectionBorderView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .clear

@@ -398,7 +398,6 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
             
             emojiLabel.topAnchor.constraint(equalTo: optionsBackgroundView.bottomAnchor, constant: 32),
             emojiLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
-            
             emojiCollectionView.topAnchor.constraint(equalTo: emojiLabel.bottomAnchor, constant: 24),
             emojiCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             emojiCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
@@ -624,12 +623,10 @@ extension NewHabitViewController: UICollectionViewDataSource, UICollectionViewDe
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == emojiCollectionView {
-            print("✅ Emoji selected at index: \(indexPath.item)")
             selectedEmojiIndex = indexPath
             collectionView.reloadData()
             updateCreateButtonState()
         } else if collectionView == colorCollectionView {
-            print("🎨 Color selected at index: \(indexPath.item)")
             selectedColorIndex = indexPath
             collectionView.reloadData()
             updateCreateButtonState()
