@@ -12,7 +12,29 @@ final class TrackersViewController: UIViewController {
     var categories: [TrackerCategory] = [
         TrackerCategory(title: "Привычки", trackers: [])
     ]
+    
+    private var trackerStore: TrackerStore? {
+        guard
+            let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+            let trackerStore = appDelegate.trackerStore
+        else {
+            print("TrackerStore ещё не готов! Core Data store не загружен.")
+            return nil
+        }
 
+        print("TrackerStore успешно получен из AppDelegate")
+        return trackerStore
+    }
+
+    private lazy var trackerRecordStore: TrackerRecordStore = {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            fatalError("❌ Unable to cast UIApplicationDelegate to AppDelegate")
+        }
+        return TrackerRecordStore(context: appDelegate.persistentContainer.viewContext)
+    }()
+
+    
+    
     /// Массив завершённых трекеров с датами
     var completedTrackers: [TrackerRecord] = []
     
@@ -37,7 +59,8 @@ final class TrackersViewController: UIViewController {
     private let addTrackerButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(named: "add_tracker_icon"), for: .normal)
+        button.setImage(UIImage(named: "add_tracker_icon")?.withRenderingMode(.alwaysTemplate), for: .normal)
+        button.tintColor = UIColor(resource: .ypBlack)
         return button
     }()
     
@@ -54,7 +77,7 @@ final class TrackersViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Трекеры"
         label.font = .systemFont(ofSize: 34, weight: .bold)
-        label.textColor = UIColor(named: "YPBlack")
+        label.textColor = UIColor(resource: .ypBlack)
         return label
     }()
     
@@ -65,12 +88,12 @@ final class TrackersViewController: UIViewController {
         textField.placeholder = "Поиск"
         textField.backgroundColor = UIColor(hex: "#767680", alpha: 0.12)
         textField.font = .systemFont(ofSize: 17)
-        textField.tintColor = UIColor(named: "YPGray")
+        textField.tintColor = UIColor(resource: .ypGray)
         
         // Иконка лупы слева
         let imageView = UIImageView(image: UIImage(systemName: "magnifyingglass"))
         imageView.contentMode = .center
-        imageView.tintColor = UIColor(named: "YPGray")
+        imageView.tintColor = UIColor(resource: .ypGray)
         
         let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 36, height: 24))
         imageView.frame = CGRect(x: 8, y: 4, width: 16, height: 16)
@@ -95,7 +118,7 @@ final class TrackersViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Что будем отслеживать?"
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.textColor = UIColor(named: "YPBlack")
+        label.textColor = UIColor(resource: .ypBlack)
         label.textAlignment = .center
         return label
     }()
@@ -130,6 +153,8 @@ final class TrackersViewController: UIViewController {
         setupNavigationBar()
         setupViews()
         setupConstraints()
+        
+        completedTrackers = trackerRecordStore.getAllRecords()
         
         // Настройка делегатов и регистрация ячеек
         collectionView.dataSource = self
@@ -202,12 +227,26 @@ final class TrackersViewController: UIViewController {
         let weekday = calendar.component(.weekday, from: date)
         let weekdayEnum = WeekDay.allCases[(weekday + 5) % 7]
         let weekdaySymbol = weekdayEnum.rawValue
-        
-        filteredCategories = categories.map { category in
-            let trackers = category.trackers.filter { $0.schedule.contains(weekdaySymbol) }
-            return TrackerCategory(title: category.title, trackers: trackers)
-        }.filter { !$0.trackers.isEmpty }
-        
+
+        // Получаем все трекеры из Core Data
+        guard let allTrackers = trackerStore?.getTrackers() else {
+            print("Не удалось получить трекеры — store не готов")
+            filteredCategories = []
+            collectionView.reloadData()
+            emptyPlaceholderStack.isHidden = false
+            return
+        }
+
+        // Фильтруем по дню недели
+        let visibleTrackers = allTrackers.filter {
+            $0.schedule.contains(weekdaySymbol)
+        }
+
+        // Оборачиваем отфильтрованные трекеры в одну моковую категорию "Привычки"
+        filteredCategories = visibleTrackers.isEmpty ? [] : [
+            TrackerCategory(title: "Привычки", trackers: visibleTrackers)
+        ]
+
         collectionView.reloadData()
         emptyPlaceholderStack.isHidden = !filteredCategories.isEmpty
     }
@@ -223,22 +262,21 @@ final class TrackersViewController: UIViewController {
     @objc private func addTrackerButtonTapped() {
         let vc = NewHabitViewController()
         vc.modalPresentationStyle = .automatic
+
         vc.onCreateTracker = { [weak self] tracker in
             guard let self else { return }
-            
-            if let index = self.categories.firstIndex(where: { $0.title == "Привычки" }) {
-                let existing = self.categories[index]
-                let updatedCategory = TrackerCategory(
-                    title: existing.title,
-                    trackers: existing.trackers + [tracker]
-                )
-                self.categories[index] = updatedCategory
-            } else {
-                self.categories.append(TrackerCategory(title: "Привычки", trackers: [tracker]))
+
+            guard let store = self.trackerStore else {
+                print("trackerStore is nil — пропускаем сохранение трекера: \(tracker.name)")
+                return
             }
-            
+
+            store.addTracker(tracker)
+            print("Трекер сохранён: \(tracker.name)")
+
             self.filterTrackers(for: self.selectedDate)
         }
+
         present(vc, animated: true)
     }
 }
@@ -282,11 +320,14 @@ extension TrackersViewController: UICollectionViewDataSource {
             }
             
             if isCompleted {
+                self.trackerRecordStore.deleteRecord(trackerId: tracker.id, date: self.selectedDate)
                 self.completedTrackers.removeAll {
                     $0.trackerId == tracker.id && calendar.isDate($0.date, inSameDayAs: self.selectedDate)
                 }
             } else {
-                self.completedTrackers.append(TrackerRecord(trackerId: tracker.id, date: self.selectedDate))
+                let newRecord = TrackerRecord(trackerId: tracker.id, date: self.selectedDate)
+                self.trackerRecordStore.addRecord(newRecord)
+                self.completedTrackers.append(newRecord)
             }
             
             collectionView.reloadItems(at: [indexPath])

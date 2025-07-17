@@ -47,7 +47,7 @@ final class TrackerCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.textColor = UIColor(named: "YPWhite")
+        label.textColor = UIColor(resource: .ypWhite)
         label.numberOfLines = 2
         label.textAlignment = .left
         return label
@@ -58,7 +58,7 @@ final class TrackerCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12)
-        label.textColor = UIColor(named: "YPBlack")
+        label.textColor = UIColor(resource: .ypBlack)
         return label
     }()
     
@@ -66,7 +66,7 @@ final class TrackerCell: UICollectionViewCell {
     private let toggleButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.tintColor = UIColor(named: "YPWhite")
+        button.tintColor = UIColor(resource: .ypWhite)
         button.layer.cornerRadius = 17
         button.layer.masksToBounds = true
         return button
@@ -95,7 +95,7 @@ final class TrackerCell: UICollectionViewCell {
         let background = UIColor(named: tracker.color) ?? UIColor(hex: tracker.color)
         
         cardView.backgroundColor = background
-        emojiBackgroundView.backgroundColor = UIColor(named: "YPWhite")?.withAlphaComponent(0.3)
+        emojiBackgroundView.backgroundColor = UIColor(resource: .ypWhite).withAlphaComponent(0.3)
         emojiLabel.text = tracker.emoji
         nameLabel.text = tracker.name
         counterLabel.text = "\(count) \(pluralizedDay(count))"
@@ -107,7 +107,7 @@ final class TrackerCell: UICollectionViewCell {
         )
         
         toggleButton.setImage(image, for: .normal)
-        toggleButton.tintColor = .white
+        toggleButton.tintColor = UIColor(resource: .ypWhite)
         toggleButton.backgroundColor = isCompleted ? background.withAlphaComponent(0.3) : background
     }
     
