@@ -10,5 +10,4 @@ import Foundation
 struct OnboardingModel {
     let title: String
     let imageName: String
-    let isLastPage: Bool
 }

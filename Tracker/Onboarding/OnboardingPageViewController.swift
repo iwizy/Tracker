@@ -7,11 +7,15 @@
 
 import UIKit
 
+protocol OnboardingPageViewControllerDelegate: AnyObject {
+    func onboardingDidFinish()
+}
+
 final class OnboardingPageViewController: UIViewController {
     
     // MARK: - Public Properties
-    
     var model: OnboardingModel?
+    weak var delegate: OnboardingPageViewControllerDelegate?
     
     // MARK: - Private Properties
     
@@ -70,7 +74,7 @@ final class OnboardingPageViewController: UIViewController {
     // MARK: - Private Methods
     
     @objc private func continueButtonTapped() {
-        print("Кнопка нажата")
+        delegate?.onboardingDidFinish()
     }
     
     

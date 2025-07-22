@@ -40,13 +40,11 @@ final class OnboardingViewController: UIViewController {
         pages = [
             OnboardingModel(
                 title: "Отслеживайте только то, что хотите",
-                imageName: "onboarding_page_1",
-                isLastPage: false
+                imageName: "onboarding_page_1"
             ),
             OnboardingModel(
                 title: "Даже если это не литры воды и йога",
-                imageName: "onboarding_page_2",
-                isLastPage: true
+                imageName: "onboarding_page_2"
             )
         ]
         pageControl.numberOfPages = pages.count
@@ -91,7 +89,9 @@ final class OnboardingViewController: UIViewController {
     private func viewController(at index: Int) -> OnboardingPageViewController? {
         guard index >= 0 && index < pages.count else { return nil }
         let model = pages[index]
-        return OnboardingPageViewController(model: model)
+        let vc = OnboardingPageViewController(model: model)
+        vc.delegate = self
+        return vc
     }
 }
 
@@ -133,5 +133,16 @@ extension OnboardingViewController: UIPageViewControllerDelegate {
             currentIndex = index
             pageControl.currentPage = index
         }
+    }
+}
+
+
+extension OnboardingViewController: OnboardingPageViewControllerDelegate {
+    func onboardingDidFinish() {
+        UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
+
+        guard let window = view.window else { return }
+        let mainVC = TabBarController()
+        window.rootViewController = mainVC
     }
 }
