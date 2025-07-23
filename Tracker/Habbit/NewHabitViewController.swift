@@ -17,6 +17,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     private var colorHeightConstraint: NSLayoutConstraint?
     
     private var selectedDays: Set<WeekDay> = []
+    private var selectedCategory: TrackerCategory?
     
     private var selectedEmojiIndex: IndexPath?
     private var selectedColorIndex: IndexPath?
@@ -430,6 +431,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         scheduleButton.addTarget(self, action: #selector(openSchedule), for: .touchUpInside)
         nameTextField.addTarget(self, action: #selector(nameFieldChanged), for: .editingChanged)
         createButton.addTarget(self, action: #selector(createTapped), for: .touchUpInside)
+        categoryButton.addTarget(self, action: #selector(categoryButtonTapped), for: .touchUpInside)
     }
     
     @objc private func cancelTapped() {
@@ -536,6 +538,15 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         print("Создание трекера: \(tracker.name), передаём в onCreateTracker")
         onCreateTracker?(tracker)
         dismiss(animated: true)
+    }
+    
+    @objc private func categoryButtonTapped() {
+        let categoryVC = CategoriesViewController()
+        categoryVC.onCategorySelected = { [weak self] category in
+            self?.selectedCategory = category
+            self?.categoryValueLabel.text = category.title
+        }
+        present(categoryVC, animated: true)
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
