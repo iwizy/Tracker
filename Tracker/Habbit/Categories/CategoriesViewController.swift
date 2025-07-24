@@ -17,6 +17,15 @@ final class CategoriesViewController: UIViewController {
 
     private let viewModel = CategoriesViewModel()
 
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Категория"
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.textColor = .ypBlack // 🔧 Было .black
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
     private let tableView: UITableView = {
         let table = UITableView()
         table.separatorStyle = .none
@@ -37,7 +46,8 @@ final class CategoriesViewController: UIViewController {
     }()
 
     private let emptyImageView: UIImageView = {
-        let imageView = UIImage(named: "star_placeholder").flatMap { UIImageView(image: $0) } ?? UIImageView()
+        let imageView = UIImageView(image: UIImage(named: "empty_placeholder"))
+        imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -68,7 +78,7 @@ final class CategoriesViewController: UIViewController {
     // MARK: - Private Methods
 
     private func setupViews() {
-        title = "Категория"
+        view.addSubview(titleLabel)
         view.addSubview(tableView)
         view.addSubview(addButton)
         view.addSubview(emptyImageView)
@@ -78,7 +88,10 @@ final class CategoriesViewController: UIViewController {
 
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 27), // 🔧 Было 16
+            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+
+            tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             tableView.bottomAnchor.constraint(equalTo: addButton.topAnchor, constant: -16),
