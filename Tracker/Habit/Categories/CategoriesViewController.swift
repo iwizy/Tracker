@@ -16,6 +16,18 @@ final class CategoriesViewController: UIViewController {
     // MARK: - Private Properties
     
     private let viewModel = CategoriesViewModel()
+    private let tableViewContainer = UIView()
+    private var tableViewHeightConstraint: NSLayoutConstraint?
+    
+    private let tableView: UITableView = {
+        let table = UITableView()
+        table.translatesAutoresizingMaskIntoConstraints = false
+        table.backgroundColor = UIColor(resource: .background)
+        table.separatorStyle = .none
+        table.layer.cornerRadius = 16
+        table.clipsToBounds = true
+        return table
+    }()
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -24,15 +36,6 @@ final class CategoriesViewController: UIViewController {
         label.textColor = .ypBlack
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
-    }()
-    
-    private let tableView: UITableView = {
-        let table = UITableView()
-        table.separatorStyle = .singleLine // 🆕 системные разделители
-        table.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16) // 🆕 отступы
-        table.translatesAutoresizingMaskIntoConstraints = false
-        table.backgroundColor = .clear
-        return table
     }()
     
     private let addButton: UIButton = {
@@ -44,14 +47,6 @@ final class CategoriesViewController: UIViewController {
         button.layer.cornerRadius = 16
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
-    }()
-    
-    private let tableBackgroundView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .white
-        view.layer.cornerRadius = 16
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
     }()
     
     private let emptyImageView: UIImageView = {
@@ -76,7 +71,7 @@ final class CategoriesViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         setupViews()
         setupConstraints()
         setupTable()
@@ -84,32 +79,48 @@ final class CategoriesViewController: UIViewController {
         viewModel.fetchCategories()
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        tableView.layoutIfNeeded()
+        tableViewHeightConstraint?.constant = tableView.contentSize.height
+    }
+    
     // MARK: - Private Methods
     
     private func setupViews() {
         view.addSubview(titleLabel)
-        view.addSubview(tableBackgroundView)
-        view.addSubview(tableView)
+        view.addSubview(tableViewContainer)
         view.addSubview(addButton)
         view.addSubview(emptyImageView)
         view.addSubview(emptyLabel)
+        
+        tableViewContainer.translatesAutoresizingMaskIntoConstraints = false
+        tableViewContainer.backgroundColor = UIColor(resource: .background)
+        tableViewContainer.layer.cornerRadius = 16
+        
+        tableViewContainer.addSubview(tableView)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.isScrollEnabled = false
+        
         addButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
     }
     
     private func setupConstraints() {
+        tableViewHeightConstraint = tableViewContainer.heightAnchor.constraint(equalToConstant: 0)
+        tableViewHeightConstraint?.isActive = true
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 27),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            tableBackgroundView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
-            tableBackgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            tableBackgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            tableBackgroundView.bottomAnchor.constraint(equalTo: addButton.topAnchor, constant: -16),
+            tableViewContainer.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
+            tableViewContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            tableViewContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            tableViewHeightConstraint!, // сохраняем ссылку
             
-            tableView.topAnchor.constraint(equalTo: tableBackgroundView.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: tableBackgroundView.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: tableBackgroundView.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: tableBackgroundView.bottomAnchor),
+            tableView.topAnchor.constraint(equalTo: tableViewContainer.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: tableViewContainer.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: tableViewContainer.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: tableViewContainer.bottomAnchor),
             
             addButton.heightAnchor.constraint(equalToConstant: 60),
             addButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -132,13 +143,19 @@ final class CategoriesViewController: UIViewController {
     
     private func bindViewModel() {
         viewModel.onCategoriesChanged = { [weak self] in
-            print("Категории: \(self?.viewModel.categories.map(\.title) ?? [])")
             guard let self = self else { return }
+            
             let hasCategories = !self.viewModel.categories.isEmpty
             self.tableView.isHidden = !hasCategories
             self.emptyImageView.isHidden = hasCategories
             self.emptyLabel.isHidden = hasCategories
+            
             self.tableView.reloadData()
+            
+            DispatchQueue.main.async {
+                self.tableView.layoutIfNeeded()
+                self.tableViewHeightConstraint?.constant = self.tableView.contentSize.height
+            }
         }
     }
     
@@ -170,14 +187,8 @@ extension CategoriesViewController: UITableViewDataSource {
         
         let category = viewModel.categories[indexPath.row]
         let isSelected = viewModel.isCategorySelected(category)
-
-        cell.configure(with: category.title, isSelected: isSelected)
-        
-        if indexPath.row == viewModel.categories.count - 1 {
-            cell.separatorInset = UIEdgeInsets(top: 0, left: tableView.bounds.width, bottom: 0, right: 0)
-        } else {
-            cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-        }
+        let isLast = indexPath.row == viewModel.categories.count - 1
+        cell.configure(with: category.title, isSelected: isSelected, isLast: isLast)
         
         return cell
     }
@@ -192,5 +203,9 @@ extension CategoriesViewController: UITableViewDelegate {
         onCategorySelected?(selected)
         tableView.reloadData()
         dismiss(animated: true)
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 75
     }
 }

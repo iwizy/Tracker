@@ -67,6 +67,7 @@ final class ScheduleViewController: UIViewController {
         doneButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         
         tableView.isScrollEnabled = false
+        tableView.separatorStyle = .none
     }
     
     // MARK: - Private Methods
