@@ -9,11 +9,15 @@ import Foundation
 
 final class CategoriesViewModel {
 
+    // MARK: - Public Properties
     var categories: [TrackerCategory] = []
     var onCategoriesChanged: (() -> Void)?
-    
-    private let store = TrackerCategoryStore() // ✅ создаём экземпляр вручную
+    var selectedCategory: TrackerCategory?
 
+    // MARK: - Private Properties
+    private let store = TrackerCategoryStore.shared
+
+    // MARK: - Public Methods
     func fetchCategories() {
         do {
             categories = try store.fetchCategories()
@@ -31,5 +35,13 @@ final class CategoriesViewModel {
         } catch {
             print("Ошибка при сохранении категории: \(error)")
         }
+    }
+
+    func selectCategory(_ category: TrackerCategory) {
+        selectedCategory = category
+    }
+
+    func isCategorySelected(_ category: TrackerCategory) -> Bool {
+        selectedCategory?.title == category.title
     }
 }

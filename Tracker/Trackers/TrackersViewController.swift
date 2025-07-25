@@ -13,18 +13,9 @@ final class TrackersViewController: UIViewController {
         TrackerCategory(title: "Привычки", trackers: [])
     ]
     
-    private var trackerStore: TrackerStore? {
-        guard
-            let appDelegate = UIApplication.shared.delegate as? AppDelegate,
-            let trackerStore = appDelegate.trackerStore
-        else {
-            print("TrackerStore ещё не готов! Core Data store не загружен.")
-            return nil
-        }
-
-        print("TrackerStore успешно получен из AppDelegate")
-        return trackerStore
-    }
+    private lazy var trackerStore: TrackerStore = {
+        return TrackerStore(context: TrackerCategoryStore.shared.internalContextForStores)
+    }()
 
     private lazy var trackerRecordStore: TrackerRecordStore = {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
@@ -228,24 +219,20 @@ final class TrackersViewController: UIViewController {
         let weekdayEnum = WeekDay.allCases[(weekday + 5) % 7]
         let weekdaySymbol = weekdayEnum.rawValue
 
-        // Получаем все трекеры из Core Data
-        guard let allTrackers = trackerStore?.getTrackers() else {
-            print("Не удалось получить трекеры — store не готов")
+        _ = trackerStore.getTrackers()
+
+        guard let allCategories = try? TrackerCategoryStore.shared.fetchCategories() else {
+            print("❌ Не удалось получить категории")
             filteredCategories = []
             collectionView.reloadData()
             emptyPlaceholderStack.isHidden = false
             return
         }
 
-        // Фильтруем по дню недели
-        let visibleTrackers = allTrackers.filter {
-            $0.schedule.contains(weekdaySymbol)
+        filteredCategories = allCategories.compactMap { category in
+            let trackers = category.trackers.filter { $0.schedule.contains(weekdaySymbol) }
+            return trackers.isEmpty ? nil : TrackerCategory(title: category.title, trackers: trackers)
         }
-
-        // Оборачиваем отфильтрованные трекеры в одну моковую категорию "Привычки"
-        filteredCategories = visibleTrackers.isEmpty ? [] : [
-            TrackerCategory(title: "Привычки", trackers: visibleTrackers)
-        ]
 
         collectionView.reloadData()
         emptyPlaceholderStack.isHidden = !filteredCategories.isEmpty
@@ -263,16 +250,25 @@ final class TrackersViewController: UIViewController {
         let vc = NewHabitViewController()
         vc.modalPresentationStyle = .automatic
 
-        vc.onCreateTracker = { [weak self] tracker in
-            guard let self else { return }
+        vc.onCreateTracker = { [weak self] tracker, categoryTitle in
+            guard let self = self else { return }
 
-            guard let store = self.trackerStore else {
-                print("trackerStore is nil — пропускаем сохранение трекера: \(tracker.name)")
+            let store = self.trackerStore
+
+            guard let categoryFromGlobalStore = try? TrackerCategoryStore.shared.fetchCategoryCoreData(with: categoryTitle) else {
+                print("❌ Не удалось найти категорию с названием \(categoryTitle)")
                 return
             }
 
-            store.addTracker(tracker)
-            print("Трекер сохранён: \(tracker.name)")
+            let categoryInTrackerContext = store.exposedContext.object(with: categoryFromGlobalStore.objectID) as? TrackerCategoryCoreData
+
+            guard let finalCategory = categoryInTrackerContext else {
+                print("❌ Не удалось перенести категорию в нужный контекст")
+                return
+            }
+
+            store.addTracker(tracker, to: finalCategory)
+            print("✅ Трекер '\(tracker.name)' сохранён в категории '\(categoryTitle)'")
 
             self.filterTrackers(for: self.selectedDate)
         }

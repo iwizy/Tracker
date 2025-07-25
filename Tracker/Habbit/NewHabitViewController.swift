@@ -8,7 +8,7 @@ import UIKit
 
 final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     
-    var onCreateTracker: ((Tracker) -> Void)?
+    var onCreateTracker: ((Tracker, String) -> Void)?
     
     private var errorBottomConstraint: NSLayoutConstraint?
     private var nameToOptionsConstraint: NSLayoutConstraint?
@@ -536,7 +536,11 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
             schedule: selectedDays.map { $0.rawValue }
         )
         print("Создание трекера: \(tracker.name), передаём в onCreateTracker")
-        onCreateTracker?(tracker)
+        guard let selectedCategory = selectedCategory else {
+            print("❌ Категория не выбрана — не создаём трекер")
+            return
+        }
+        onCreateTracker?(tracker, selectedCategory.title)
         dismiss(animated: true)
     }
     
