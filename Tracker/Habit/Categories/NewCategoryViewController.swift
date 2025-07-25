@@ -85,10 +85,10 @@ final class NewCategoryViewController: UIViewController {
 
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 27),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 
-            textField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 38),
+            textField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 44),
             textField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             textField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             textField.heightAnchor.constraint(equalToConstant: 75),

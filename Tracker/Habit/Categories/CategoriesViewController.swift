@@ -95,7 +95,6 @@ final class CategoriesViewController: UIViewController {
         view.addSubview(emptyLabel)
         
         tableViewContainer.translatesAutoresizingMaskIntoConstraints = false
-        tableViewContainer.backgroundColor = UIColor(resource: .background)
         tableViewContainer.layer.cornerRadius = 16
         
         tableViewContainer.addSubview(tableView)
@@ -112,7 +111,7 @@ final class CategoriesViewController: UIViewController {
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 27),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            tableViewContainer.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
+            tableViewContainer.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 44),
             tableViewContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             tableViewContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             tableViewHeightConstraint!, // сохраняем ссылку

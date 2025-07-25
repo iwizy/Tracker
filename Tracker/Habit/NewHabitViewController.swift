@@ -360,7 +360,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 27),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            nameFieldStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 38),
+            nameFieldStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
             nameFieldStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             nameFieldStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             nameTextField.heightAnchor.constraint(equalToConstant: 75),
