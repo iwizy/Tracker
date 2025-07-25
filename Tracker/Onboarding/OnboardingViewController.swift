@@ -11,7 +11,7 @@ final class OnboardingViewController: UIViewController {
     
     // MARK: - Private Properties
     
-    private var pageViewController: UIPageViewController!
+    private var pageViewController: UIPageViewController?
     private var pages: [OnboardingModel] = []
     private var currentIndex: Int = 0
     
@@ -52,30 +52,31 @@ final class OnboardingViewController: UIViewController {
     }
     
     private func setupPageViewController() {
-        pageViewController = UIPageViewController(
+        let pvc = UIPageViewController(
             transitionStyle: .scroll,
             navigationOrientation: .horizontal,
             options: nil
         )
-        
-        pageViewController.dataSource = self
-        pageViewController.delegate = self
+        pvc.dataSource = self
+        pvc.delegate = self
         
         if let firstVC = viewController(at: currentIndex) {
-            pageViewController.setViewControllers([firstVC], direction: .forward, animated: false, completion: nil)
+            pvc.setViewControllers([firstVC], direction: .forward, animated: false, completion: nil)
         }
         
-        addChild(pageViewController)
-        view.addSubview(pageViewController.view)
-        pageViewController.didMove(toParent: self)
+        addChild(pvc)
+        view.addSubview(pvc.view)
+        pvc.didMove(toParent: self)
         
-        pageViewController.view.translatesAutoresizingMaskIntoConstraints = false
+        pvc.view.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            pageViewController.view.topAnchor.constraint(equalTo: view.topAnchor),
-            pageViewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            pageViewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            pageViewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            pvc.view.topAnchor.constraint(equalTo: view.topAnchor),
+            pvc.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            pvc.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            pvc.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
+        
+        self.pageViewController = pvc
     }
     
     private func setupPageControl() {

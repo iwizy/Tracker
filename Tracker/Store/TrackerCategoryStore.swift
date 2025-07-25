@@ -28,14 +28,22 @@ final class TrackerCategoryStore {
     // MARK: - Initializer
 
     private init() {
-            let container = NSPersistentContainer(name: "Tracker")
-            container.loadPersistentStores { _, error in
-                if let error = error {
-                    fatalError("Ошибка инициализации хранилища: \(error)")
-                }
+        let container = NSPersistentContainer(name: "Tracker")
+        var loadError: Error?
+
+        container.loadPersistentStores { _, error in
+            if let error = error {
+                loadError = error
             }
-            self.context = container.viewContext
         }
+
+        if let error = loadError {
+            print("⚠️ Ошибка инициализации TrackerCategoryStore: \(error.localizedDescription)")
+            assertionFailure("Не удалось загрузить Core Data Stack")
+        }
+
+        self.context = container.viewContext
+    }
 
     // MARK: - Public Methods
 
