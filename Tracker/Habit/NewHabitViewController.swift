@@ -8,7 +8,7 @@ import UIKit
 
 final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     
-    var onCreateTracker: ((Tracker) -> Void)?
+    var onCreateTracker: ((Tracker, String) -> Void)?
     
     private var errorBottomConstraint: NSLayoutConstraint?
     private var nameToOptionsConstraint: NSLayoutConstraint?
@@ -17,6 +17,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     private var colorHeightConstraint: NSLayoutConstraint?
     
     private var selectedDays: Set<WeekDay> = []
+    private var selectedCategory: TrackerCategory?
     
     private var selectedEmojiIndex: IndexPath?
     private var selectedColorIndex: IndexPath?
@@ -359,7 +360,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 27),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            nameFieldStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 38),
+            nameFieldStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
             nameFieldStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             nameFieldStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             nameTextField.heightAnchor.constraint(equalToConstant: 75),
@@ -430,6 +431,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
         scheduleButton.addTarget(self, action: #selector(openSchedule), for: .touchUpInside)
         nameTextField.addTarget(self, action: #selector(nameFieldChanged), for: .editingChanged)
         createButton.addTarget(self, action: #selector(createTapped), for: .touchUpInside)
+        categoryButton.addTarget(self, action: #selector(categoryButtonTapped), for: .touchUpInside)
     }
     
     @objc private func cancelTapped() {
@@ -534,8 +536,21 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
             schedule: selectedDays.map { $0.rawValue }
         )
         print("Создание трекера: \(tracker.name), передаём в onCreateTracker")
-        onCreateTracker?(tracker)
+        guard let selectedCategory = selectedCategory else {
+            print("❌ Категория не выбрана — не создаём трекер")
+            return
+        }
+        onCreateTracker?(tracker, selectedCategory.title)
         dismiss(animated: true)
+    }
+    
+    @objc private func categoryButtonTapped() {
+        let categoryVC = CategoriesViewController()
+        categoryVC.onCategorySelected = { [weak self] category in
+            self?.selectedCategory = category
+            self?.categoryValueLabel.text = category.title
+        }
+        present(categoryVC, animated: true)
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {

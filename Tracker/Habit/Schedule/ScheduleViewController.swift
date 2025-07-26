@@ -67,6 +67,7 @@ final class ScheduleViewController: UIViewController {
         doneButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         
         tableView.isScrollEnabled = false
+        tableView.separatorStyle = .none
     }
     
     // MARK: - Private Methods
@@ -91,7 +92,7 @@ final class ScheduleViewController: UIViewController {
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             // Контейнер под таблицу
-            backgroundContainerView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
+            backgroundContainerView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 44),
             backgroundContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             backgroundContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             backgroundContainerView.heightAnchor.constraint(equalToConstant: CGFloat(WeekDay.allCases.count) * 75),

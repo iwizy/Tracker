@@ -9,6 +9,10 @@ import Foundation
 import CoreData
 
 final class TrackerStore: NSObject {
+    
+    var exposedContext: NSManagedObjectContext {
+        context
+    }
 
     // MARK: - Public Properties
 
@@ -51,13 +55,14 @@ final class TrackerStore: NSObject {
     // MARK: - Public Methods
 
     /// Добавление нового трекера в Core Data
-    func addTracker(_ tracker: Tracker) {
+    func addTracker(_ tracker: Tracker, to category: TrackerCategoryCoreData) {
         let trackerCD = TrackerCoreData(context: context)
         trackerCD.id = tracker.id
         trackerCD.name = tracker.name
         trackerCD.color = tracker.color
         trackerCD.emoji = tracker.emoji
         trackerCD.schedule = tracker.schedule as NSArray
+        trackerCD.category = category
         saveContext()
     }
 
