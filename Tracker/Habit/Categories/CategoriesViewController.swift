@@ -74,7 +74,7 @@ final class CategoriesViewController: UIViewController {
         view.backgroundColor = .ypWhite
         setupViews()
         setupConstraints()
-        setupTable()
+        configureTableView()
         bindViewModel()
         viewModel.fetchCategories()
     }
@@ -101,7 +101,7 @@ final class CategoriesViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.isScrollEnabled = false
         
-        addButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
+        addButton.addTarget(self, action: #selector(didTapAddButton), for: .touchUpInside)
     }
     
     private func setupConstraints() {
@@ -134,7 +134,7 @@ final class CategoriesViewController: UIViewController {
         ])
     }
     
-    private func setupTable() {
+    private func configureTableView() {
         tableView.register(CategoryCell.self, forCellReuseIdentifier: CategoryCell.reuseIdentifier)
         tableView.dataSource = self
         tableView.delegate = self
@@ -158,7 +158,7 @@ final class CategoriesViewController: UIViewController {
         }
     }
     
-    @objc private func addButtonTapped() {
+    @objc private func didTapAddButton() {
         let newVC = NewCategoryViewController()
         newVC.onSave = { [weak self] newCategory in
             self?.viewModel.addCategory(named: newCategory)

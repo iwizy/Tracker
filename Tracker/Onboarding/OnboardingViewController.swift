@@ -31,7 +31,7 @@ final class OnboardingViewController: UIViewController {
         view.backgroundColor = .systemBackground
         setupPages()
         setupPageViewController()
-        setupPageControl()
+        setupPageControlConstraints()
     }
     
     // MARK: - Private Methods
@@ -79,7 +79,7 @@ final class OnboardingViewController: UIViewController {
         self.pageViewController = pvc
     }
     
-    private func setupPageControl() {
+    private func setupPageControlConstraints() {
         view.addSubview(pageControl)
         NSLayoutConstraint.activate([
             pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),

@@ -58,6 +58,8 @@ final class CategoryCell: UITableViewCell {
         checkmarkImageView.isHidden = !isSelected
         separatorView.isHidden = isLast
     }
+    
+    
 
     // MARK: - Setup
 
