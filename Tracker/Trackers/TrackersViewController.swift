@@ -8,11 +8,6 @@ import UIKit
 
 final class TrackersViewController: UIViewController {
     // MARK: - Public Properties
-    /// Список всех категорий с трекерами (мок)
-    var categories: [TrackerCategory] = [
-        TrackerCategory(title: "Привычки", trackers: [])
-    ]
-    
     private lazy var trackerStore: TrackerStore = {
         return TrackerStore(context: TrackerCategoryStore.shared.internalContextForStores)
     }()
@@ -41,7 +36,7 @@ final class TrackersViewController: UIViewController {
         let picker = UIDatePicker()
         picker.datePickerMode = .date
         picker.preferredDatePickerStyle = .compact
-        picker.locale = Locale(identifier: "ru_RU")
+        picker.locale = Locale.current
         picker.tintColor = .systemBlue
         return picker
     }()
@@ -66,7 +61,7 @@ final class TrackersViewController: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Трекеры"
+        label.text = NSLocalizedString("trackers_tab", comment: "Заголовок экрана трекеров")
         label.font = .systemFont(ofSize: 34, weight: .bold)
         label.textColor = UIColor(resource: .ypBlack)
         return label
@@ -76,7 +71,7 @@ final class TrackersViewController: UIViewController {
     private let searchField: UITextField = {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.placeholder = "Поиск"
+        textField.placeholder = NSLocalizedString("search_placeholder", comment: "Плейсхолдер поиска")
         textField.backgroundColor = UIColor(hex: "#767680", alpha: 0.12)
         textField.font = .systemFont(ofSize: 17)
         textField.tintColor = UIColor(resource: .ypGray)
@@ -107,7 +102,7 @@ final class TrackersViewController: UIViewController {
     private let emptyPlaceholderLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Что будем отслеживать?"
+        label.text = NSLocalizedString("empty_trackers_ph", comment: "Текст плейсхолдеров пустого экрана трекеров")
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textColor = UIColor(resource: .ypBlack)
         label.textAlignment = .center

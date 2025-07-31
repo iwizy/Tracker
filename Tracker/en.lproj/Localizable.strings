@@ -1,0 +1,20 @@
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by Alexander Agafonov on 31.07.2025.
+  
+*/
+
+"trackers_tab" = "Trackers";
+"statistics_tab" = "Statistics";
+"filters_button" = "Filters";
+"filter_all" = "All trackers";
+"filter_today" = "Today's trackers";
+"filter_completed" = "Completed";
+"filter_incompleted" = "Uncompleted";
+"filter_nothing_found" = "Nothing found";
+"edit_action" = "Edit";
+"delete_action" = "Delete";
+"search_placeholder" = "Search";
+"empty_trackers_ph" = "What are we going to track?";

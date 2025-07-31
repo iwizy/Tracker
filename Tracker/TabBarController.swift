@@ -29,14 +29,14 @@ final class TabBarController: UITabBarController {
         // Создаём контроллер трекеров
         let trackersVC = TrackersViewController()
         trackersVC.tabBarItem = UITabBarItem(
-            title: "Трекеры",
+            title: NSLocalizedString("trackers_tab", comment: "Таб трекеров"),
             image: UIImage(resource: .tabTrackers),
             tag: 0)
         
         // Создаём контроллер статистики
         let statisticsVC = StatisticsViewController()
         statisticsVC.tabBarItem = UITabBarItem(
-            title: "Статистика",
+            title: NSLocalizedString("statistics_tab", comment: "Таб статистики"),
             image: UIImage(resource: .tabStatistics),
             tag: 1)
         
