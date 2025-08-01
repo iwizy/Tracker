@@ -7,10 +7,32 @@
 
 import UIKit
 
+enum TrackerFilterType: Int {
+    case all
+    case today
+    case completed
+    case incompleted
+}
+
+protocol FilterSelectionDelegate: AnyObject {
+    func didSelectFilter(_ filter: TrackerFilterType)
+}
+
 final class FilterViewController: UIViewController {
+    
+    // MARK: - Public Properties
+
+    weak var delegate: FilterSelectionDelegate?
 
     // MARK: - Private Properties
 
+    private let filters: [String] = [
+        NSLocalizedString("filters_all", comment: "Все трекеры"),
+        NSLocalizedString("filters_today", comment: "Трекеры на сегодня"),
+        NSLocalizedString("filters_completed", comment: "Завершённые"),
+        NSLocalizedString("filters_incompleted", comment: "Незавершённые")
+    ]
+    
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = NSLocalizedString("filters_title", comment: "Заголовок экрана фильтров")
@@ -19,29 +41,16 @@ final class FilterViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
-    private let containerView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .ypLightGray
-        view.layer.cornerRadius = 16
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
+    
+    private let tableView: UITableView = {
+        let table = UITableView()
+        table.backgroundColor = .ypLightGray
+        table.layer.cornerRadius = 16
+        table.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        table.isScrollEnabled = false
+        table.translatesAutoresizingMaskIntoConstraints = false
+        return table
     }()
-
-    private let stackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .vertical
-        stack.spacing = 0
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        return stack
-    }()
-
-    private let filters: [String] = [
-        NSLocalizedString("filters_all", comment: "Все трекеры"),
-        NSLocalizedString("filters_today", comment: "Трекеры на сегодня"),
-        NSLocalizedString("filters_completed", comment: "Завершённые"),
-        NSLocalizedString("filters_incompleted", comment: "Незавершённые")
-    ]
 
     // MARK: - Lifecycle
 
@@ -50,94 +59,66 @@ final class FilterViewController: UIViewController {
         view.backgroundColor = .ypWhite
         setupViews()
         setupConstraints()
+        setupTable()
     }
 
     // MARK: - Private Methods
 
     private func setupViews() {
         view.addSubview(titleLabel)
-        view.addSubview(containerView)
-        containerView.addSubview(stackView)
-
-        for (index, title) in filters.enumerated() {
-            let isLast = index == filters.count - 1
-            let row = makeFilterRow(title: title, isLast: isLast)
-            stackView.addArrangedSubview(row)
-        }
+        view.addSubview(tableView)
     }
 
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 27),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-
-            containerView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
-            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-
-            stackView.topAnchor.constraint(equalTo: containerView.topAnchor),
-            stackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            stackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
+            
+            tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            tableView.heightAnchor.constraint(equalToConstant: CGFloat(filters.count * 75))
         ])
     }
 
-    private func makeFilterRow(title: String, isLast: Bool) -> UIView {
-        let row = UIView()
-        row.translatesAutoresizingMaskIntoConstraints = false
-        row.heightAnchor.constraint(equalToConstant: 75).isActive = true
+    private func setupTable() {
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "FilterCell")
+        tableView.dataSource = self
+        tableView.delegate = self
+    }
+}
 
-        let label = UILabel()
-        label.text = title
-        label.textColor = .ypBlack
-        label.font = .systemFont(ofSize: 17)
-        label.translatesAutoresizingMaskIntoConstraints = false
+// MARK: - UITableViewDataSource
 
-        row.addSubview(label)
-
-        NSLayoutConstraint.activate([
-            label.leadingAnchor.constraint(equalTo: row.leadingAnchor, constant: 16),
-            label.trailingAnchor.constraint(equalTo: row.trailingAnchor, constant: -16),
-            label.centerYAnchor.constraint(equalTo: row.centerYAnchor)
-        ])
-
-        // 🔧 Добавим разделитель снизу, но не для последней ячейки
-        if !isLast {
-            let separator = UIView()
-            separator.backgroundColor = .ypGray
-            separator.translatesAutoresizingMaskIntoConstraints = false
-            row.addSubview(separator)
-
-            NSLayoutConstraint.activate([
-                separator.heightAnchor.constraint(equalToConstant: 0.5),
-                separator.leadingAnchor.constraint(equalTo: row.leadingAnchor, constant: 16),
-                separator.trailingAnchor.constraint(equalTo: row.trailingAnchor, constant: -16),
-                separator.bottomAnchor.constraint(equalTo: row.bottomAnchor)
-            ])
-        }
-
-        return row
+extension FilterViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return filters.count
     }
 
-    private func makeSeparator() -> UIView {
-        let separator = UIView()
-        separator.translatesAutoresizingMaskIntoConstraints = false
-        separator.backgroundColor = .ypGray
-        NSLayoutConstraint.activate([
-            separator.heightAnchor.constraint(equalToConstant: 0.5)
-        ])
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let title = filters[indexPath.row]
+        let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCell", for: indexPath)
+        var config = cell.defaultContentConfiguration()
+        config.text = title
+        config.textProperties.color = .ypBlack
+        config.textProperties.font = .systemFont(ofSize: 17)
+        cell.contentConfiguration = config
+        cell.backgroundColor = .clear
+        cell.selectionStyle = .none
+        return cell
+    }
+}
 
-        let container = UIView()
-        container.translatesAutoresizingMaskIntoConstraints = false
-        container.addSubview(separator)
+// MARK: - UITableViewDelegate
 
-        NSLayoutConstraint.activate([
-            separator.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
-            separator.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-            separator.topAnchor.constraint(equalTo: container.topAnchor),
-            separator.bottomAnchor.constraint(equalTo: container.bottomAnchor)
-        ])
+extension FilterViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let selectedFilter = TrackerFilterType(rawValue: indexPath.row) else { return }
+        delegate?.didSelectFilter(selectedFilter)
+        dismiss(animated: true)
+    }
 
-        return container
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 75
     }
 }
