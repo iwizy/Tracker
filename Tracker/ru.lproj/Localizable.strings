@@ -9,6 +9,7 @@
 "trackers_tab" = "Трекеры";
 "statistics_tab" = "Статистика";
 "filters_button" = "Фильтры";
+"filters_title" = "Фильтры";
 "filter_all" = "Все трекеры";
 "filter_today" = "Трекеры на сегодня";
 "filter_completed" = "Завершённые";

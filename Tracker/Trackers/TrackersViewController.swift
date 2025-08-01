@@ -292,7 +292,9 @@ final class TrackersViewController: UIViewController {
     
     /// Обработка нажатия на кнопку фильтров
     @objc private func filtersButtonTapped() {
-        print("Кнопка фильтров нажата")
+        let filterVC = FilterViewController()
+        filterVC.modalPresentationStyle = .automatic
+        present(filterVC, animated: true)
     }
 }
 

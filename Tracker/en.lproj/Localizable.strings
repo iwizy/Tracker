@@ -9,6 +9,7 @@
 "trackers_tab" = "Trackers";
 "statistics_tab" = "Statistics";
 "filters_button" = "Filters";
+"filters_title" = "Filters";
 "filter_all" = "All trackers";
 "filter_today" = "Today's trackers";
 "filter_completed" = "Completed";
