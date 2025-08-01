@@ -132,6 +132,18 @@ final class TrackersViewController: UIViewController {
         return collectionView
     }()
     
+    /// Кнопка фильтрации трекеров
+    private let filtersButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(NSLocalizedString("filters_button", comment: "Кнопка фильтрации"), for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .regular)
+        button.backgroundColor = UIColor(resource: .ypBlue)
+        button.layer.cornerRadius = 16
+        return button
+    }()
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -165,6 +177,7 @@ final class TrackersViewController: UIViewController {
         
         addTrackerButton.addTarget(self, action: #selector(addTrackerButtonTapped), for: .touchUpInside)
         datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
+        filtersButton.addTarget(self, action: #selector(filtersButtonTapped), for: .touchUpInside)
     }
     
     /// Добавление UI-элементов на экран
@@ -173,6 +186,7 @@ final class TrackersViewController: UIViewController {
         view.addSubview(searchField)
         view.addSubview(emptyPlaceholderStack)
         view.addSubview(collectionView)
+        view.addSubview(filtersButton)
         
         searchField.layer.cornerRadius = 10
         searchField.layer.masksToBounds = true
@@ -204,6 +218,11 @@ final class TrackersViewController: UIViewController {
             
             emptyPlaceholderStack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             emptyPlaceholderStack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            
+            filtersButton.heightAnchor.constraint(equalToConstant: 50),
+            filtersButton.widthAnchor.constraint(equalToConstant: 114),
+            filtersButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            filtersButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
         ])
     }
     
@@ -269,6 +288,11 @@ final class TrackersViewController: UIViewController {
         }
 
         present(vc, animated: true)
+    }
+    
+    /// Обработка нажатия на кнопку фильтров
+    @objc private func filtersButtonTapped() {
+        print("Кнопка фильтров нажата")
     }
 }
 
