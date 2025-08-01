@@ -41,8 +41,8 @@ final class CategoriesViewController: UIViewController {
     private let addButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Добавить категорию", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = .black
+        button.setTitleColor(.ypWhite, for: .normal)
+        button.backgroundColor = .ypBlack
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.layer.cornerRadius = 16
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -61,7 +61,7 @@ final class CategoriesViewController: UIViewController {
         label.text = "Привычки и события можно\nобъединить по смыслу"
         label.textAlignment = .center
         label.numberOfLines = 2
-        label.textColor = .black
+        label.textColor = .ypBlack
         label.font = UIFont.systemFont(ofSize: 12)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

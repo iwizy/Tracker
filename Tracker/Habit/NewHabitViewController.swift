@@ -267,7 +267,7 @@ final class NewHabitViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         setupViews()
         setupConstraints()
         setupActions()
